@@ -19,3 +19,4 @@ KeyFrameTrajectory.txt
 Vocabulary/ORBvoc.txt
 lib/
 *~
+*.bin
