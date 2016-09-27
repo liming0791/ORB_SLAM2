@@ -191,15 +191,15 @@ void Converter::GL2IMUAxis(std::vector<float> &_Q)
     if(_Q.size() == 4){
         // Quaternion
         float x = _Q[1], y = _Q[2], z = _Q[3];
-        _Q[1] = -z;
-        _Q[2] = x;
-        _Q[3] = y;
+        _Q[1] = z;
+        _Q[2] = -x;
+        _Q[3] = -y;
     }else if(_Q.size() == 3){
         // Translation
         float x = _Q[0], y = _Q[1], z = _Q[2];
-        _Q[0] = -z;
-        _Q[1] = x;
-        _Q[2] = y;
+        _Q[0] = z;
+        _Q[1] = -x;
+        _Q[2] = -y;
     }
         
 }
@@ -209,15 +209,15 @@ void Converter::IMU2GLAxis(std::vector<float> &_Q)
     if(_Q.size() == 4){
         // Quaternion
         float x = _Q[1], y = _Q[2], z = _Q[3];
-        _Q[1] = y;
-        _Q[2] = z;
-        _Q[3] = -x;
+        _Q[1] = -y;
+        _Q[2] = -z;
+        _Q[3] = x;
     }else if(_Q.size() == 3){
         // Translation
         float x = _Q[0], y = _Q[1], z = _Q[2];
-        _Q[0] = y;
-        _Q[1] = z;
-        _Q[2] = -x;
+        _Q[0] = -y;
+        _Q[1] = -z;
+        _Q[2] = x;
     }
 }
 

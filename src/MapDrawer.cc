@@ -29,7 +29,7 @@ namespace ORB_SLAM2
 {
 
 
-MapDrawer::MapDrawer(Map* pMap, const string &strSettingPath):mpMap(pMap)
+MapDrawer::MapDrawer(Map* pMap, const string &strSettingPath):mpMap(pMap),T(3,0)
 {
     cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
 
@@ -41,6 +41,32 @@ MapDrawer::MapDrawer(Map* pMap, const string &strSettingPath):mpMap(pMap)
     mCameraLineWidth = fSettings["Viewer.CameraLineWidth"];
 
     mCameraPose = cv::Mat(4,4,CV_32FC1, cv::Scalar::all(0));
+}
+
+void MapDrawer::DrawMapAxis()
+{
+    glLineWidth(mKeyFrameLineWidth);
+    
+    // Z Axis blue
+    glColor3f(0.0f,0.0f,1.0f);
+    glBegin(GL_LINES);
+    glVertex3f(0,0,0);
+    glVertex3f(0,0,1);
+    glEnd();
+
+    // Y Axis red
+    glColor3f(1.0f,0.0f,0.0f);
+    glBegin(GL_LINES);
+    glVertex3f(0,0,0);
+    glVertex3f(0,1,0);
+    glEnd();
+
+    // X Axis green
+    glColor3f(0.0f,1.0f,0.0f);
+    glBegin(GL_LINES);
+    glVertex3f(0,0,0);
+    glVertex3f(1,0,0);
+    glEnd();
 }
 
 void MapDrawer::DrawMapPoints()
@@ -220,16 +246,17 @@ void MapDrawer::DrawCurrentCamera(pangolin::OpenGlMatrix &Twc)
     glPopMatrix();
 }
 
-
 void MapDrawer::SetCurrentCameraPose(const cv::Mat &Tcw)
 {
     {
         unique_lock<mutex> lock(mMutexCamera);
         mCameraPose = Tcw.clone();
-        cv::Mat Rwc =  mCameraPose.rowRange(0,3).colRange(0,3);
-        cv::Mat twc = -Rwc.t()*mCameraPose.rowRange(0,3).col(3);
+        cv::Mat Rwc =  mCameraPose.rowRange(0,3).colRange(0,3).t();
+        cv::Mat twc = -Rwc*mCameraPose.rowRange(0,3).col(3);
         SetQ(ORB_SLAM2::Converter::toQuaternion(Rwc));
         SetT(twc);
+        printf("Camera translation: %f %f %f\n", 
+                twc.at<float>(0,0), twc.at<float>(1,0), twc.at<float>(2,0));
     }
 }
 
@@ -243,7 +270,7 @@ void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M)
 
         {
             unique_lock<mutex> lock(mMutexQ);
-            Rwc = ORB_SLAM2::Converter::toMatrix(Q).t();
+            Rwc = ORB_SLAM2::Converter::toMatrix(Q);
         }
 
         //{
@@ -275,11 +302,11 @@ void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M)
     else
         M.SetIdentity();
 
-    printf("\nGetGLCameraMatrix:\n %f %f %f %f \n %f %f %f %f \n %f %f %f %f \n %f %f %f %f \n\n", 
-            M.m[0], M.m[1], M.m[2], M.m[3], 
-            M.m[4], M.m[5], M.m[6], M.m[7], 
-            M.m[8], M.m[9], M.m[10], M.m[11], 
-            M.m[12], M.m[13], M.m[14], M.m[15] );
+//    printf("\nGetGLCameraMatrix:\n %f %f %f %f \n %f %f %f %f \n %f %f %f %f \n %f %f %f %f \n\n", 
+//            M.m[0], M.m[1], M.m[2], M.m[3], 
+//            M.m[4], M.m[5], M.m[6], M.m[7], 
+//            M.m[8], M.m[9], M.m[10], M.m[11], 
+//            M.m[12], M.m[13], M.m[14], M.m[15] );
 }
 
 void MapDrawer::SetQ(const std::vector<float> &_Q)
@@ -310,6 +337,8 @@ void MapDrawer::SetT(cv::Mat &twc)
 {
     {
         unique_lock<mutex> lock(mMutexT);
+        if (T.size() == 0)
+            T.resize(3);
         T[0] = twc.at<float>(0,0);
         T[1] = twc.at<float>(1,0);
         T[2] = twc.at<float>(2,0);

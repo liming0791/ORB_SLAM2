@@ -76,14 +76,15 @@ void trackRGBD()
 
         double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
-        //printf("tracking time: %f\n", ttrack);
+        printf("tracking time: %f\n", ttrack);
 
         avetime+=ttrack;
         avetime/=2;
 
         // Wait to load the next frame, 30Hz
-        if(ttrack < 0.033333)
-            usleep((0.033333-ttrack)*1e6);
+        float waitTime = 0.100000;
+        if(ttrack < waitTime)
+            usleep((waitTime-ttrack)*1e6);
         if(stopRGBD)
             break;
     }    
@@ -94,17 +95,28 @@ void trackIMU()
 
     std::cout << "TrackIMU pid: " << gettid() << std::endl;
 
+    long long IMUTime = 0;
+    long long Last_IMUTime = 0;
+    int imuCount = 0;
+
     while(true){
 
-        long long IMUTime = 0;
         oniDevicePtr->getIMUData(IMUData, IMUTime);
 
+//        printf("IMU : %f %f %f %f %f %f %f %f %f %lld\n", 
+//            IMUData[0], IMUData[1], IMUData[2], 
+//            IMUData[3], IMUData[4], IMUData[5], 
+//            IMUData[6], IMUData[7], IMUData[8], IMUTime);
 
-        printf("IMU : %f %f %f %f %f %f %f %f %f %d\n", 
-            IMUData[0], IMUData[1], IMUData[2], 
-            IMUData[3], IMUData[4], IMUData[5], 
-            IMUData[6], IMUData[7], IMUData[8], IMUTime);
-        SLAMPtr->TrackIMU(IMUData, IMUTime);
+        if (IMUTime != Last_IMUTime && imuCount > 200) {
+            printf("Trcking IMU\n");
+            SLAMPtr->TrackIMU(IMUData, IMUTime);
+        } else {
+            printf("warning: repeated imu data\n");
+        }
+
+        Last_IMUTime = IMUTime;
+        imuCount++;
 
         if(stopIMU)
             break;
@@ -123,9 +135,13 @@ int main(int argc, char **argv)
     bool usergbd = atoi(argv[4]);
     bool useimu = atoi(argv[5]);
 
+    // Create SLAM system. It initializes all system threads and gets ready to process frames.
+    bool reusemap = atoi(argv[3]);
+    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::RGBD,true, reusemap);
+    SLAMPtr = &SLAM;
+
     //frame params 
     int width = 640, height = 480;
-    long long depthTime, colorTime;
     //cv::namedWindow("color");
     //cv::namedWindow("depth");
 
@@ -137,31 +153,26 @@ int main(int argc, char **argv)
         oniDevice.initOni(&width, &height);
     oniDevice.begin();
     oniDevicePtr = &oniDevice;
-
+    
     //frame data
     cv::Mat imRGB(height, width, CV_8UC3); 
     cv::Mat imD(height, width, CV_16UC1);
     dMatPtr = &imD;
     cMatPtr = &imRGB;
 
-    // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    bool reusemap = atoi(argv[3]);
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::RGBD,true, reusemap);
-    SLAMPtr = &SLAM;
-
     //start trackRGB thread
-    std::thread *mpTrackRGBDThread;
+    std::thread *mpTrackRGBDThread = NULL;
     if(usergbd){
         printf("start track rgbd thread\n");
         mpTrackRGBDThread = new std::thread(trackRGBD);
     }
     //start trackIMU threads
-    std::thread *mpTrackIMUThread;
+    std::thread *mpTrackIMUThread = NULL;
     if(useimu){
         printf("start track imu thread\n");
         mpTrackIMUThread = new  std::thread(trackIMU);
     }
-        // Main loop
+    // Main loop
     float totaltime = 0;
     char command = 'a';
     while(true)

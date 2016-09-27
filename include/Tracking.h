@@ -225,12 +225,23 @@ protected:
 
     // IMU time stamp
     long long lastIMUTime;
+    double IMUScaleX;
+    double IMUScaleY;
+    double IMUScaleZ;
+    double IMUOffsetX;
+    double IMUOffsetY;
+    double IMUOffsetZ;
 
     // log file
     std::ofstream logFile;
 
     // IMU count
     int imuCount;
+
+    // Init RotationMat
+    cv::Mat InitR;
+    std::mutex mMutexInitR;
+    
 };
 
 } //namespace ORB_SLAM

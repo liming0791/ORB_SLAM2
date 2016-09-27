@@ -81,7 +81,7 @@ void Viewer::Run()
     // Define Camera Render Object (for view / scene browsing)
     pangolin::OpenGlRenderState s_cam(
                 pangolin::ProjectionMatrix(1024,768,mViewpointF,mViewpointF,512,389,0.1,1000),
-                pangolin::ModelViewLookAt(mViewpointX,mViewpointY,mViewpointZ, 0,0,0,0.0,-1.0, 0.0)
+                pangolin::ModelViewLookAt(mViewpointX,mViewpointY,mViewpointZ, 0,0,0,0.0, -1.0, 0.0)
                 );
 
     // Add named OpenGL viewport to window and provide 3D Handler
@@ -109,7 +109,7 @@ void Viewer::Run()
         }
         else if(menuFollowCamera && !bFollow)
         {
-            s_cam.SetModelViewMatrix(pangolin::ModelViewLookAt(mViewpointX,mViewpointY,mViewpointZ, 0,0,0,0.0,-1.0, 0.0));
+            s_cam.SetModelViewMatrix(pangolin::ModelViewLookAt(mViewpointX,mViewpointY,mViewpointZ, 0,0,0,0.0, -1.0, 0.0));
             s_cam.Follow(Twc);
             bFollow = true;
         }
@@ -136,6 +136,8 @@ void Viewer::Run()
             mpMapDrawer->DrawKeyFrames(menuShowKeyFrames,menuShowGraph);
         if(menuShowPoints)
             mpMapDrawer->DrawMapPoints();
+
+        mpMapDrawer->DrawMapAxis();
 
         pangolin::FinishFrame();
 

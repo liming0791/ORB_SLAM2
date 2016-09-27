@@ -38,6 +38,8 @@ public:
 
     Map* mpMap;
 
+
+    void DrawMapAxis();
     void DrawMapPoints();
     void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph);
     void DrawCurrentCamera(pangolin::OpenGlMatrix &Twc);
@@ -61,6 +63,7 @@ private:
     float mCameraLineWidth;
 
     cv::Mat mCameraPose;
+    cv::Mat initR;
 
     std::vector<float> Q;
     std::vector<float> T;
@@ -68,6 +71,7 @@ private:
     std::mutex mMutexCamera;
     std::mutex mMutexQ;
     std::mutex mMutexT;
+    std::mutex mMutexInitR;
 };
 
 } //namespace ORB_SLAM

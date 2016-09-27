@@ -113,6 +113,23 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     else
         cout << "- color order: BGR (ignored if grayscale)" << endl;
 
+    // Load IMU parameters
+    IMUScaleX = fSettings["IMU.ScaleX"];
+    IMUScaleY = fSettings["IMU.ScaleY"];
+    IMUScaleZ = fSettings["IMU.ScaleZ"];
+
+    IMUOffsetX = fSettings["IMU.OffsetX"];
+    IMUOffsetY = fSettings["IMU.OffsetY"];
+    IMUOffsetZ = fSettings["IMU.OffsetZ"];
+
+    printf("IMU Parameters:\n");
+    printf("- scale x: %f\n", IMUScaleX);
+    printf("- scale y: %f\n", IMUScaleY);
+    printf("- scale z: %f\n", IMUScaleZ);
+    printf("- offset x: %f\n", IMUOffsetX);
+    printf("- offset y: %f\n", IMUOffsetY);
+    printf("- offset z: %f\n", IMUOffsetZ);
+
     // Load ORB parameters
 
     int nFeatures = fSettings["ORBextractor.nFeatures"];
@@ -313,77 +330,114 @@ void Tracking::TrackIMU(float* v, long long timestamp)
  * v is 9 length float vector
  */ 
 
-    std::vector<float> Q;
-    std::vector<float> T;
+    // Correct IMU 
+    v[0] = (v[0] - IMUOffsetX)/IMUScaleX;
+    v[1] = (v[1] - IMUOffsetY)/IMUScaleY;
+    v[2] = (v[2] - IMUOffsetZ)/IMUScaleZ;
 
+//    v[0] *= sqrt(abs(v[0]/10)); 
+//    v[1] *= sqrt(abs(v[1]/10)); 
+//    v[2] *= sqrt(abs(v[2]/10)); 
+
+    std::vector<float> Q;
     mpMapDrawer->GetQ(Q);
     if(Q.empty()){
         Q.resize(4);
         Q[0] = 1; Q[1] = Q[2] = Q[3] = 0;
     }
-    mpMapDrawer->GetT(T);
-    if(T.empty()){
-        T.resize(3);
-        T[0] = T[1] = T[2] = 0;
-    }
-
+    Converter::GL2IMUAxis(Q);
     printf("\n===GetQ: %f %f %f %f\n\n", Q[0], Q[1], Q[2], Q[3]);
 
-    Converter::GL2IMUAxis(Q);
-    Converter::GL2IMUAxis(T);   // Important process
+//    std::vector<float> T;
+//    mpMapDrawer->GetT(T);
+//    if(T.empty()){
+//        T.resize(3);
+//        T[0] = T[1] = T[2] = 0;
+//    }
+//    Converter::GL2IMUAxis(T);   // Important process
 
-    // Compute orientation
     float dt = ((timestamp - lastIMUTime)/1000000.0);
     lastIMUTime = timestamp;
+    printf("dt: %f\n", dt);
+    if (dt <= 0) {
+        printf("Error: dt should not be 0\n");
+        return;
+    }
+
+    // Compute orientation
     MahonyAHRS::updateIMU(v[3]/180*PI, v[4]/180*PI, v[5]/180*PI, 
             v[0], v[1], v[2],
             1/dt, 
-            Q[0], Q[1], Q[2], Q[3]);
+            Q[0], Q[1], Q[2], Q[3]);    
 
-    // Compute position, delay 5 seconds
+    // Compute position, delay 5 seconds, wont be used bacause error too large
     float a0 = 0, a1 = 0, a2 =0;
-    if(imuCount>=1000){
-        // Caculate real acce
-        cv::Mat RMat = Converter::toMatrix(Q);
-        float *R = RMat.ptr<float>(0); 
-        a0 = R[0]*v[0] + R[1]*v[1] + R[2]*v[2];
-        a1 = R[3]*v[0] + R[4]*v[1] + R[5]*v[2];
-        a2 = R[6]*v[0] + R[7]*v[1] + R[8]*v[2];
-        a2 -= 9.8;       //rotate the acce and eliminate the g
-
-        // DEBUG: Use original acce for calibration
-        a0 = v[0]; a1 = v[1]; a2 = v[2]; 
-
-        printf("\n===Original Acce: %f %f %f \n\n", v[0], v[1], v[2]);
-        printf("\n===Rotated Acce: %f %f %f \n\n", a0, a1, a2);
-
-        EKFTranslation::setTranslation(T);  // set T , corected from camera
-        //EKFTranslation::updateNoEKF(a0, a1, a2, dt);
-        //EKFTranslation::updatePartialEKF(a0, a1, a2, dt);
-        EKFTranslation::updateEKF(a0, a1, a2, dt);
-        EKFTranslation::getTranslation(T);
-    }
+//    if(imuCount>=1500)
+//    {
+//        // Caculate real acce
+//        cv::Mat RMat = Converter::toMatrix(Q);
+//        float *R = RMat.ptr<float>(0); 
+//        a0 = R[0]*v[0] + R[1]*v[1] + R[2]*v[2];
+//        a1 = R[3]*v[0] + R[4]*v[1] + R[5]*v[2];
+//        a2 = R[6]*v[0] + R[7]*v[1] + R[8]*v[2];
+//        a2 -= 10;       //rotate the acce and eliminate the g
+//
+//        printf("\n===Original Acce: %f %f %f \n\n", v[0], v[1], v[2]);
+//        printf("\n===Rotated Acce: %f %f %f \n\n", a0, a1, a2);
+//
+//        // Convert to ORB_SLAM scale
+//        a0 = -a0/5;
+//        a1 = -a1/5;
+//        a2 = -a2/5;
+//
+//      // DEBUG: Use original acce for calibration
+//      float a0 = v[0], a1 = v[1], a2 = v[2]; 
+//
+////        EKFTranslation::setTranslation(T);  // set T , corected from camera
+////      EKFTranslation::updateNoEKF(a0, a1, a2, dt);
+////      EKFTranslation::updatePartialEKF(a0, a1, a2, dt);
+////      EKFTranslation::updateAcc(a0, a1, a2);
+//        EKFTranslation::updateEKF(a0, a1, a2, T[0], T[1], T[2], dt);
+//        EKFTranslation::getTranslation(T);   
+//    }
 
     // Convert Axis
-    Converter::IMU2GLAxis(T);
-    Converter::IMU2GLAxis(Q);
-
     // Set result in MapDrawer
-    printf("\n===SetQ: %f %f %f %f\n\n", Q[0], Q[1], Q[2], Q[3]);
+    Converter::IMU2GLAxis(Q);
     mpMapDrawer->SetQ(Q);
-    printf("\n===SetT: %f %f %f\n\n", T[0], T[1], T[2]);
-    mpMapDrawer->SetT(T);
+//    printf("\n===SetQ: %f %f %f %f\n\n", Q[0], Q[1], Q[2], Q[3]);
+//
+//    Converter::IMU2GLAxis(T);
+//    mpMapDrawer->SetT(T);
+//    printf("\n===IMU Translation: %f %f %f\n\n", T[0], T[1], T[2]);
 
-    std::vector<float> S;
-    EKFTranslation::getStatus(S);
+    // Set Init R
+    if (imuCount == 200) {
+        // Set init rotation
 
-    logFile << a0 << " " << a1 << " " << a2 << " "
-            << S[0] << " "<< S[1] << " "<< S[2] << " "
-            << S[3] << " "<< S[4] << " "<< S[5] << " "
-            << S[6] << " "<< S[7] << " "<< S[8] << std::endl;
+        cv::Mat initR_t = Converter::toMatrix(Q).t();
+
+        {
+            unique_lock<mutex> lock(mMutexInitR);
+            InitR = cv::Mat::eye(4,4,CV_32FC1);
+            initR_t.copyTo(cv::Mat(InitR, cv::Rect(0, 0, 3, 3)));
+            printf("\n===Init R: %f %f %f %f \n %f %f %f %f\n %f %f %f %f \n %f %f %f %f\n\n", 
+                    InitR.at<float>(0,0),InitR.at<float>(0,1),InitR.at<float>(0,2),InitR.at<float>(0,3),
+                    InitR.at<float>(1,0),InitR.at<float>(1,1),InitR.at<float>(1,2),InitR.at<float>(1,3),
+                    InitR.at<float>(2,0),InitR.at<float>(2,1),InitR.at<float>(2,2),InitR.at<float>(2,3),
+                    InitR.at<float>(3,0),InitR.at<float>(3,1),InitR.at<float>(3,2),InitR.at<float>(3,3));
+        }
+    }
+
+    // Log to File
+//    std::vector<float> S;
+//    EKFTranslation::getStatus(S);
+//    logFile << a0 << " " << a1 << " " << a2 << " "
+//            << S[0] << " "<< S[1] << " "<< S[2] << " "
+//            << S[3] << " "<< S[4] << " "<< S[5] << " "
+//            << S[6] << " "<< S[7] << " "<< S[8] << std::endl;
 
     imuCount++;
-    
 }
 
 void Tracking::Track()
@@ -642,8 +696,17 @@ void Tracking::StereoInitialization()
 {
     if(mCurrentFrame.N>500)
     {
-        // Set Frame pose to the origin
-        mCurrentFrame.SetPose(cv::Mat::eye(4,4,CV_32F));
+        {
+            // Set Frame pose to the origin
+            unique_lock<mutex> lock(mMutexInitR);
+            if (InitR.empty()) {
+                printf("InitR has not ready!\n"); 
+                return;
+            }
+        }
+        mCurrentFrame.SetPose(InitR);
+
+//        mCurrentFrame.SetPose(cv::Mat::eye(4,4,CV_32F));
 
         // Create KeyFrame
         KeyFrame* pKFini = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
@@ -686,7 +749,10 @@ void Tracking::StereoInitialization()
 
         mpMap->mvpKeyFrameOrigins.push_back(pKFini);
 
+        // Setcurrentcamerapose
+        printf("Set Init Camera pose\n");
         mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw);
+        printf("Set Init Camera pose done\n");
 
         mState=OK;
     }
