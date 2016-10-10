@@ -148,7 +148,7 @@ int main(int argc, char **argv)
     //open kinect
     Oni_IMU oniDevice;
     if(useimu)
-        oniDevice.initIMU(port, 115200);
+        oniDevice.initIMU(port, 230400);
     if(usergbd)
         oniDevice.initOni(&width, &height);
     oniDevice.begin();

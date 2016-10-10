@@ -248,16 +248,19 @@ void MapDrawer::DrawCurrentCamera(pangolin::OpenGlMatrix &Twc)
 
 void MapDrawer::SetCurrentCameraPose(const cv::Mat &Tcw)
 {
+    cv::Mat Rwc;
+    cv::Mat twc;
     {
         unique_lock<mutex> lock(mMutexCamera);
         mCameraPose = Tcw.clone();
-        cv::Mat Rwc =  mCameraPose.rowRange(0,3).colRange(0,3).t();
-        cv::Mat twc = -Rwc*mCameraPose.rowRange(0,3).col(3);
-        SetQ(ORB_SLAM2::Converter::toQuaternion(Rwc));
-        SetT(twc);
-        printf("Camera translation: %f %f %f\n", 
-                twc.at<float>(0,0), twc.at<float>(1,0), twc.at<float>(2,0));
+        Rwc =  mCameraPose.rowRange(0,3).colRange(0,3).t();
+        twc = -Rwc*mCameraPose.rowRange(0,3).col(3);
     }
+    SetQ(ORB_SLAM2::Converter::toQuaternion(Rwc));
+    SetT(twc);
+    EKFTranslation::updateEKF(twc.at<float>(0,0), twc.at<float>(1,0), twc.at<float>(2,0));
+    printf("Camera translation: %f %f %f\n", 
+            twc.at<float>(0,0), twc.at<float>(1,0), twc.at<float>(2,0));
 }
 
 void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M)
@@ -272,12 +275,6 @@ void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M)
             unique_lock<mutex> lock(mMutexQ);
             Rwc = ORB_SLAM2::Converter::toMatrix(Q);
         }
-
-        //{
-            //unique_lock<mutex> lock(mMutexCamera);
-            //Rwc = mCameraPose.rowRange(0,3).colRange(0,3).t();
-            //twc = -Rwc*mCameraPose.rowRange(0,3).col(3);
-        //}
 
         M.m[0] = Rwc.at<float>(0,0);
         M.m[1] = Rwc.at<float>(1,0);

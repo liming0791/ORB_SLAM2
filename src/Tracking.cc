@@ -335,10 +335,6 @@ void Tracking::TrackIMU(float* v, long long timestamp)
     v[1] = (v[1] - IMUOffsetY)/IMUScaleY;
     v[2] = (v[2] - IMUOffsetZ)/IMUScaleZ;
 
-//    v[0] *= sqrt(abs(v[0]/10)); 
-//    v[1] *= sqrt(abs(v[1]/10)); 
-//    v[2] *= sqrt(abs(v[2]/10)); 
-
     std::vector<float> Q;
     mpMapDrawer->GetQ(Q);
     if(Q.empty()){
@@ -347,14 +343,6 @@ void Tracking::TrackIMU(float* v, long long timestamp)
     }
     Converter::GL2IMUAxis(Q);
     printf("\n===GetQ: %f %f %f %f\n\n", Q[0], Q[1], Q[2], Q[3]);
-
-//    std::vector<float> T;
-//    mpMapDrawer->GetT(T);
-//    if(T.empty()){
-//        T.resize(3);
-//        T[0] = T[1] = T[2] = 0;
-//    }
-//    Converter::GL2IMUAxis(T);   // Important process
 
     float dt = ((timestamp - lastIMUTime)/1000000.0);
     lastIMUTime = timestamp;
@@ -370,8 +358,8 @@ void Tracking::TrackIMU(float* v, long long timestamp)
             1/dt, 
             Q[0], Q[1], Q[2], Q[3]);    
 
-    // Compute position, delay 5 seconds, wont be used bacause error too large
-    float a0 = 0, a1 = 0, a2 =0;
+//    // Compute position, delay 5 seconds, wont be used bacause error too large
+//    float a0 = 0, a1 = 0, a2 =0;
 //    if(imuCount>=1500)
 //    {
 //        // Caculate real acce
@@ -382,23 +370,23 @@ void Tracking::TrackIMU(float* v, long long timestamp)
 //        a2 = R[6]*v[0] + R[7]*v[1] + R[8]*v[2];
 //        a2 -= 10;       //rotate the acce and eliminate the g
 //
-//        printf("\n===Original Acce: %f %f %f \n\n", v[0], v[1], v[2]);
-//        printf("\n===Rotated Acce: %f %f %f \n\n", a0, a1, a2);
+////        printf("\n===Original Acce: %f %f %f \n\n", v[0], v[1], v[2]);
+////        printf("\n===Rotated Acce: %f %f %f \n\n", a0, a1, a2);
 //
 //        // Convert to ORB_SLAM scale
 //        a0 = -a0/5;
 //        a1 = -a1/5;
 //        a2 = -a2/5;
 //
-//      // DEBUG: Use original acce for calibration
-//      float a0 = v[0], a1 = v[1], a2 = v[2]; 
+////      // DEBUG: Use original acce for calibration
+////        float a0 = v[0], a1 = v[1], a2 = v[2]; 
 //
 ////        EKFTranslation::setTranslation(T);  // set T , corected from camera
-////      EKFTranslation::updateNoEKF(a0, a1, a2, dt);
-////      EKFTranslation::updatePartialEKF(a0, a1, a2, dt);
-////      EKFTranslation::updateAcc(a0, a1, a2);
-//        EKFTranslation::updateEKF(a0, a1, a2, T[0], T[1], T[2], dt);
-//        EKFTranslation::getTranslation(T);   
+////        EKFTranslation::updateNoEKF(a0, a1, a2, dt);
+////        EKFTranslation::updatePartialEKF(a0, a1, a2, dt);
+////        EKFTranslation::updateAcc(a0, a1, a2);
+//        EKFTranslation::predictEKF(a0, a1, a2, dt);
+////        EKFTranslation::getTranslation(T);   
 //    }
 
     // Convert Axis
@@ -414,9 +402,7 @@ void Tracking::TrackIMU(float* v, long long timestamp)
     // Set Init R
     if (imuCount == 200) {
         // Set init rotation
-
         cv::Mat initR_t = Converter::toMatrix(Q).t();
-
         {
             unique_lock<mutex> lock(mMutexInitR);
             InitR = cv::Mat::eye(4,4,CV_32FC1);
@@ -429,7 +415,7 @@ void Tracking::TrackIMU(float* v, long long timestamp)
         }
     }
 
-    // Log to File
+//    // Log to File
 //    std::vector<float> S;
 //    EKFTranslation::getStatus(S);
 //    logFile << a0 << " " << a1 << " " << a2 << " "

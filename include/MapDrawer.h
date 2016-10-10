@@ -28,6 +28,8 @@
 
 #include<mutex>
 
+#include "EKFTranslation.h"
+
 namespace ORB_SLAM2
 {
 
