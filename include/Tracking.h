@@ -44,9 +44,6 @@
 #include <mutex>
 #include <fstream>
 
-#include "MahonyAHRS.h"
-#include "EKFTranslation.h"
-
 namespace ORB_SLAM2
 {
 
@@ -68,7 +65,10 @@ public:
     cv::Mat GrabImageStereo(const cv::Mat &imRectLeft,const cv::Mat &imRectRight, const double &timestamp);
     cv::Mat GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp);
     cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
-    void TrackIMU(float* v, long long timestamp);
+//    void TrackIMU(float* v, long long timestamp);
+//    void FuseIMU(float* v, long long timestamp);
+//    void FuseCamera(cv::Mat& cameraPose, long long timestamp, bool ifKeyFrame = false);
+//    void updateFuseResult();
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopClosing(LoopClosing* pLoopClosing);
@@ -241,6 +241,14 @@ protected:
     // Init RotationMat
     cv::Mat InitR;
     std::mutex mMutexInitR;
+
+    // msf_ekf estimator
+//    ekf::EstimatorDelayHider* estimator;
+//    std::mutex mUpdateFuseMutex;
+
+    // 
+    std::mutex mCameraReadyMutex;
+    bool cameraReady;
     
 };
 

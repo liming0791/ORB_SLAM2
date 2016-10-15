@@ -4,6 +4,7 @@ project(ORB_SLAM2)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(SERIALPORT_DIR "/home/liming/SerialPort")
 set(IMU_POSE_DIR "/home/liming/IMU_POSE")
+set(MSF_EKF_DIR "/home/liming/msf_ekf")
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
@@ -49,6 +50,8 @@ ${Pangolin_INCLUDE_DIRS}
 ${SERIALPORT_DIR}/include
 ${IMU_POSE_DIR}/include
 ${OpenNI_INCLUDE_DIR}
+${MSF_EKF_DIR}/src
+${MSF_EKF_DIR}/external/concurrentBuffers/src
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -84,6 +87,7 @@ ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 ${Boost_LIBRARIES}
 ${SERIALPORT_DIR}/lib/libSerialPort.so
 ${IMU_POSE_DIR}/lib/libIMU_POSE.so
+${MSF_EKF_DIR}/lib/libekf_lib.so
 )
 
 # Build examples

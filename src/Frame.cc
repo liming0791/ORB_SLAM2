@@ -677,4 +677,9 @@ cv::Mat Frame::UnprojectStereo(const int &i)
         return cv::Mat();
 }
 
+double Frame::GetTimeStamp()
+{
+    return mTimeStamp;
+}
+
 } //namespace ORB_SLAM

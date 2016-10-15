@@ -273,10 +273,11 @@ cv::Mat System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 
 }
 
-void System::TrackIMU(float* values, long long timestamp)
-{
-    mpTracker->TrackIMU(values, timestamp);
-}
+//void System::TrackIMU(float* values, long long timestamp)
+//{
+//    //mpTracker->TrackIMU(values, timestamp);
+//    mpTracker->FuseIMU(values, timestamp);
+//}
 
 void System::ActivateLocalizationMode()
 {

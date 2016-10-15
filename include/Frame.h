@@ -98,6 +98,10 @@ public:
     // Backprojects a keypoint (if stereo/depth info available) into 3D world coordinates.
     cv::Mat UnprojectStereo(const int &i);
 
+    // Get TimeStamp
+    double GetTimeStamp();
+    
+
 public:
     // Vocabulary used for relocalization.
     ORBVocabulary* mpORBvocabulary;

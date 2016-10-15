@@ -28,8 +28,6 @@
 
 #include<mutex>
 
-#include "EKFTranslation.h"
-
 namespace ORB_SLAM2
 {
 
@@ -46,13 +44,16 @@ public:
     void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph);
     void DrawCurrentCamera(pangolin::OpenGlMatrix &Twc);
     void SetCurrentCameraPose(const cv::Mat &Tcw);
+    void SetCurrentCameraPose(const Eigen::Vector3d &T, const Eigen::Quaterniond &Q);
     void SetReferenceKeyFrame(KeyFrame *pKF);
     void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M);
 
     void SetQ(const std::vector<float> &_Q);
+    void SetQ(float w, float x, float y, float z);
     void GetQ(std::vector<float> &_Q);
     void SetT(std::vector<float> &_T);
     void SetT(cv::Mat &twc);
+    void SetT(float x, float y, float z);
     void GetT(std::vector<float> &_T);
 
 private:

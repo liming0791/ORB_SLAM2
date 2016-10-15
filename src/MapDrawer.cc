@@ -258,18 +258,19 @@ void MapDrawer::SetCurrentCameraPose(const cv::Mat &Tcw)
     }
     SetQ(ORB_SLAM2::Converter::toQuaternion(Rwc));
     SetT(twc);
-    EKFTranslation::updateEKF(twc.at<float>(0,0), twc.at<float>(1,0), twc.at<float>(2,0));
-    printf("Camera translation: %f %f %f\n", 
-            twc.at<float>(0,0), twc.at<float>(1,0), twc.at<float>(2,0));
+}
+
+void MapDrawer::SetCurrentCameraPose(const Eigen::Vector3d &T, const Eigen::Quaterniond &_Q)
+{
+    SetQ(_Q.w(), _Q.x(), _Q.y(), _Q.z());
+    SetT(T(0), T(1), T(2));
 }
 
 void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M)
 {
-    if(!mCameraPose.empty()&&!Q.empty())
+    if(!Q.empty()&&!T.empty())
     {
         cv::Mat Rwc(3,3,CV_32F);
-        cv::Mat twc(3,1,CV_32F);
-
 
         {
             unique_lock<mutex> lock(mMutexQ);
@@ -314,6 +315,19 @@ void MapDrawer::SetQ(const std::vector<float> &_Q)
     }
 }
 
+void MapDrawer::SetQ(float w, float x, float y, float z)
+{
+    {
+        unique_lock<mutex> lock(mMutexQ);
+        if(Q.size()==0)
+            Q.resize(4);
+        Q[0] = w;
+        Q[1] = x;
+        Q[2] = y;
+        Q[3] = z;
+    }
+}
+
 void MapDrawer::GetQ(std::vector<float> &_Q)
 {
     {
@@ -339,6 +353,18 @@ void MapDrawer::SetT(cv::Mat &twc)
         T[0] = twc.at<float>(0,0);
         T[1] = twc.at<float>(1,0);
         T[2] = twc.at<float>(2,0);
+    }
+}
+
+void MapDrawer::SetT(float x, float y, float z)
+{
+    {
+        unique_lock<mutex> lock(mMutexT);
+        if (T.size() == 0)
+            T.resize(3);
+        T[0] = x;
+        T[1] = y;
+        T[2] = z;
     }
 }
 

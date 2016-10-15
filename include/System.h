@@ -86,7 +86,7 @@ public:
     cv::Mat TrackMonocular(const cv::Mat &im, const double &timestamp);
 
     // Process the IMU data
-    void TrackIMU(float* values, long long timestamp);
+//    void TrackIMU(float* values, long long timestamp);
 
     // This stops local mapping thread (map building) and performs only camera tracking.
     void ActivateLocalizationMode();

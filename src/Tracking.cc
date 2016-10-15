@@ -177,6 +177,47 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     // init imucount
     imuCount = 0;
 
+    // init msf_ekf estimator
+//    estimator = new ekf::EstimatorDelayHider();
+//	estimator->SetState( Eigen::Vector3d(0, 0, 0.2), 	// p_i_w
+//			Eigen::Vector3d(0, 0, 0),				// v_i_w
+//			Eigen::Quaterniond(1, 0, 0, 0),		// q_i_w
+//			Eigen::Vector3d(0, 0, 0),				// b_omega
+//			Eigen::Vector3d(0, 0, 0),				// b_a
+//			log(1),								// lambda
+//			Eigen::Vector3d(0.05, 0, -0.10),    // p_c_i
+//			Eigen::Quaterniond(1, 1, -1, 1),    // q_c_i
+//			Eigen::Vector3d(0, 0, 0),				// p_w_v
+//			Eigen::Quaterniond(1, 0, 0, 0));		// q_w_v
+//	estimator->SetCalibration(0.02*0.02,		// sq_sigma_omega
+//            0.05*0.05,						    // sq_sigma_a
+//			0.001*0.001,					    // sq_sigma_b_omega
+//			0.001*0.001,					    // sq_sigma_a_omega
+//			1/400.0,							// Delta_t
+//            // Not convert Axis
+////			Eigen::Vector3d(0,0,10),			// g
+//            // Convert Axis
+//			Eigen::Vector3d(0,10,0),			// g
+//			0.0001,						        // noise of scaling for new KFs
+//			true);								// measurements are absolute (in contrast to incremental)
+//	Eigen::Matrix<double,28,1> P;
+//	P << 0, 0, 0.1,								// p_i_w
+//		0.2, 0.2, 0.2,							// v_i_w
+//		0.3, 0.3, 0,							// q_i_w
+//		0.01, 0.01, 0.01,						// b_omega
+//		0.01, 0.01, 0.01,						// b_a
+//		log(2),									// lambda
+//		0.005, 0.005, 0.005,					// p_c_i
+//		0.05, 0.05, 0.05,						// q_c_i
+//		0, 0, 0,								// p_w_v
+//		0, 0, 0;								// q_w_v
+//	P = 1*P.cwiseProduct(P);
+//	estimator->SetCovarianceDiagonal(P);
+//	estimator->estimatorFull.UpdateKeyframe(); // update initial camera pose (a bit hacky)
+//    estimator->Start();
+
+    // int cameraReady
+    cameraReady = false;
 }
 
 void Tracking::SetLocalMapper(LocalMapping *pLocalMapper)
@@ -322,109 +363,212 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
         return mCurrentFrame.mTcw.clone();
 }
 
-void Tracking::TrackIMU(float* v, long long timestamp)
-{
-
-/*
- * timestamp in microsecend
- * v is 9 length float vector
- */ 
-
-    // Correct IMU 
-    v[0] = (v[0] - IMUOffsetX)/IMUScaleX;
-    v[1] = (v[1] - IMUOffsetY)/IMUScaleY;
-    v[2] = (v[2] - IMUOffsetZ)/IMUScaleZ;
-
-    std::vector<float> Q;
-    mpMapDrawer->GetQ(Q);
-    if(Q.empty()){
-        Q.resize(4);
-        Q[0] = 1; Q[1] = Q[2] = Q[3] = 0;
-    }
-    Converter::GL2IMUAxis(Q);
-    printf("\n===GetQ: %f %f %f %f\n\n", Q[0], Q[1], Q[2], Q[3]);
-
-    float dt = ((timestamp - lastIMUTime)/1000000.0);
-    lastIMUTime = timestamp;
-    printf("dt: %f\n", dt);
-    if (dt <= 0) {
-        printf("Error: dt should not be 0\n");
-        return;
-    }
-
-    // Compute orientation
-    MahonyAHRS::updateIMU(v[3]/180*PI, v[4]/180*PI, v[5]/180*PI, 
-            v[0], v[1], v[2],
-            1/dt, 
-            Q[0], Q[1], Q[2], Q[3]);    
-
-//    // Compute position, delay 5 seconds, wont be used bacause error too large
-//    float a0 = 0, a1 = 0, a2 =0;
-//    if(imuCount>=1500)
+//void Tracking::FuseIMU(float* v, long long timestamp)
+//{
+///*
+// * timestamp in microsecend
+// * v is 9 length float vector
+// */ 
+//    // test if camera ready
+////    {
+////        std::lock_guard<mutex> lock(mCameraReadyMutex);
+////        if(!cameraReady)
+////            return;
+////    }
+//
+//    // Correct IMU Acce
+//    v[0] = (v[0] - IMUOffsetX)/IMUScaleX;
+//    v[1] = (v[1] - IMUOffsetY)/IMUScaleY;
+//    v[2] = (v[2] - IMUOffsetZ)/IMUScaleZ;
+//
+//    // Not Convert Axis
+////    Eigen::Vector3d a_m = Eigen::Vector3d(v[0], v[1], v[2]);
+////    Eigen::Vector3d omega_m = Eigen::Vector3d(v[3]/180*PI, v[4]/180*PI, v[5]/180*PI);
+//
+//    // Convert Axis
+//    Eigen::Vector3d a_m = Eigen::Vector3d(v[1], v[2], -v[0]);
+//    Eigen::Vector3d omega_m = Eigen::Vector3d(-v[4]/180*PI, -v[5]/180*PI, v[3]/180*PI);
+//
+//   
+//
+//    estimator->ImuMeasurement(omega_m,      // angular velocity, rad/s
+//            a_m,                            // accelerator, m/s
+//            0,                              // horizenal distance
+//            false,                          // if horizenal distance validate
+//            timestamp                       // imu timestamp
+//            );
+//
+//    updateFuseResult();
+//
+//}
+//
+//void Tracking::FuseCamera(cv::Mat &CameraPose, long long timestamp, bool ifKeyFrame)
+//{
+//    cv::Mat Rwc =  CameraPose.rowRange(0,3).colRange(0,3).t();
+//    cv::Mat twc = -Rwc*CameraPose.rowRange(0,3).col(3);
+//
+//    Eigen::Vector3d translation(twc.at<float>(0, 0), 
+//            twc.at<float>(1, 0),
+//            twc.at<float>(2, 0));
+//    Eigen::Matrix<double,3,3> RMat;
+//    RMat << Rwc.at<float>(0,0), 
+//      Rwc.at<float>(0,1), 
+//      Rwc.at<float>(0,2),
+//      Rwc.at<float>(1,0), 
+//      Rwc.at<float>(1,1), 
+//      Rwc.at<float>(1,2),
+//      Rwc.at<float>(2,0), 
+//      Rwc.at<float>(2,1), 
+//      Rwc.at<float>(2,2);
+//    Eigen::Quaterniond rotation_q(RMat);
+//    Eigen::Matrix<double,6,6> R = Eigen::Matrix<double,6,6>::Zero();
+//    R.diagonal()[0] = 0.01*0.01;
+//    R.diagonal()[1] = 0.01*0.01;
+//    R.diagonal()[2] = 0.01*0.01;
+//    R.diagonal()[3] = 0.1*0.1;
+//    R.diagonal()[4] = 0.1*0.1;
+//    R.diagonal()[5] = 0.05*0.05;
+//
+//    estimator->CameraMeasurement(
+//            translation,
+//            rotation_q,
+//            R,
+//            ifKeyFrame,
+//            timestamp);
+//
+//    updateFuseResult();
+//
 //    {
-//        // Caculate real acce
-//        cv::Mat RMat = Converter::toMatrix(Q);
-//        float *R = RMat.ptr<float>(0); 
-//        a0 = R[0]*v[0] + R[1]*v[1] + R[2]*v[2];
-//        a1 = R[3]*v[0] + R[4]*v[1] + R[5]*v[2];
-//        a2 = R[6]*v[0] + R[7]*v[1] + R[8]*v[2];
-//        a2 -= 10;       //rotate the acce and eliminate the g
-//
-////        printf("\n===Original Acce: %f %f %f \n\n", v[0], v[1], v[2]);
-////        printf("\n===Rotated Acce: %f %f %f \n\n", a0, a1, a2);
-//
-//        // Convert to ORB_SLAM scale
-//        a0 = -a0/5;
-//        a1 = -a1/5;
-//        a2 = -a2/5;
-//
-////      // DEBUG: Use original acce for calibration
-////        float a0 = v[0], a1 = v[1], a2 = v[2]; 
-//
-////        EKFTranslation::setTranslation(T);  // set T , corected from camera
-////        EKFTranslation::updateNoEKF(a0, a1, a2, dt);
-////        EKFTranslation::updatePartialEKF(a0, a1, a2, dt);
-////        EKFTranslation::updateAcc(a0, a1, a2);
-//        EKFTranslation::predictEKF(a0, a1, a2, dt);
-////        EKFTranslation::getTranslation(T);   
+//        std::lock_guard<mutex> lock(mCameraReadyMutex);
+//        cameraReady = true;
+//        printf("camera pose ready\n");
 //    }
-
-    // Convert Axis
-    // Set result in MapDrawer
-    Converter::IMU2GLAxis(Q);
-    mpMapDrawer->SetQ(Q);
-//    printf("\n===SetQ: %f %f %f %f\n\n", Q[0], Q[1], Q[2], Q[3]);
 //
-//    Converter::IMU2GLAxis(T);
-//    mpMapDrawer->SetT(T);
-//    printf("\n===IMU Translation: %f %f %f\n\n", T[0], T[1], T[2]);
-
-    // Set Init R
-    if (imuCount == 200) {
-        // Set init rotation
-        cv::Mat initR_t = Converter::toMatrix(Q).t();
-        {
-            unique_lock<mutex> lock(mMutexInitR);
-            InitR = cv::Mat::eye(4,4,CV_32FC1);
-            initR_t.copyTo(cv::Mat(InitR, cv::Rect(0, 0, 3, 3)));
-            printf("\n===Init R: %f %f %f %f \n %f %f %f %f\n %f %f %f %f \n %f %f %f %f\n\n", 
-                    InitR.at<float>(0,0),InitR.at<float>(0,1),InitR.at<float>(0,2),InitR.at<float>(0,3),
-                    InitR.at<float>(1,0),InitR.at<float>(1,1),InitR.at<float>(1,2),InitR.at<float>(1,3),
-                    InitR.at<float>(2,0),InitR.at<float>(2,1),InitR.at<float>(2,2),InitR.at<float>(2,3),
-                    InitR.at<float>(3,0),InitR.at<float>(3,1),InitR.at<float>(3,2),InitR.at<float>(3,3));
-        }
-    }
-
-//    // Log to File
-//    std::vector<float> S;
-//    EKFTranslation::getStatus(S);
-//    logFile << a0 << " " << a1 << " " << a2 << " "
-//            << S[0] << " "<< S[1] << " "<< S[2] << " "
-//            << S[3] << " "<< S[4] << " "<< S[5] << " "
-//            << S[6] << " "<< S[7] << " "<< S[8] << std::endl;
-
-    imuCount++;
-}
+//}
+//
+//void Tracking::updateFuseResult()
+//{
+//    {
+//        std::lock_guard<mutex> lock(mUpdateFuseMutex);
+//
+//        Eigen::Vector3d p, v, a, omega;
+//        Eigen::Quaterniond q;
+//        estimator->GetState(p, v, q, omega, a);
+//
+//        // Print log
+//        logFile << p(0) << " " << p(1) << " " << p(2) << " "
+//            << v(0) << " " << v(1) << " " << v(2) << " "
+//            << a(0) << " " << a(1) << " " << a(2) << endl;
+//        // Print log end
+//        
+//        // Set Camerapose in MapDrawer
+//        mpMapDrawer->SetCurrentCameraPose(p, q);
+//    }
+//}
+//
+//void Tracking::TrackIMU(float* v, long long timestamp)
+//{
+//
+///*
+// * timestamp in microsecend
+// * v is 9 length float vector
+// */ 
+//
+//    // Correct IMU 
+//    v[0] = (v[0] - IMUOffsetX)/IMUScaleX;
+//    v[1] = (v[1] - IMUOffsetY)/IMUScaleY;
+//    v[2] = (v[2] - IMUOffsetZ)/IMUScaleZ;
+//
+//    std::vector<float> Q;
+//    mpMapDrawer->GetQ(Q);
+//    if(Q.empty()){
+//        Q.resize(4);
+//        Q[0] = 1; Q[1] = Q[2] = Q[3] = 0;
+//    }
+//    Converter::GL2IMUAxis(Q);
+//    printf("\n===GetQ: %f %f %f %f\n\n", Q[0], Q[1], Q[2], Q[3]);
+//
+//    float dt = ((timestamp - lastIMUTime)/1000000.0);
+//    lastIMUTime = timestamp;
+//    printf("dt: %f\n", dt);
+//    if (dt <= 0) {
+//        printf("Error: dt should not be 0\n");
+//        return;
+//    }
+//
+//    // Compute orientation
+//    MahonyAHRS::updateIMU(v[3]/180*PI, v[4]/180*PI, v[5]/180*PI, 
+//            v[0], v[1], v[2],
+//            1/dt, 
+//            Q[0], Q[1], Q[2], Q[3]);    
+//
+////    // Compute position, delay 5 seconds, wont be used bacause error too large
+////    float a0 = 0, a1 = 0, a2 =0;
+////    if(imuCount>=1500)
+////    {
+////        // Caculate real acce
+////        cv::Mat RMat = Converter::toMatrix(Q);
+////        float *R = RMat.ptr<float>(0); 
+////        a0 = R[0]*v[0] + R[1]*v[1] + R[2]*v[2];
+////        a1 = R[3]*v[0] + R[4]*v[1] + R[5]*v[2];
+////        a2 = R[6]*v[0] + R[7]*v[1] + R[8]*v[2];
+////        a2 -= 10;       //rotate the acce and eliminate the g
+////
+//////        printf("\n===Original Acce: %f %f %f \n\n", v[0], v[1], v[2]);
+//////        printf("\n===Rotated Acce: %f %f %f \n\n", a0, a1, a2);
+////
+////        // Convert to ORB_SLAM scale
+////        a0 = -a0/5;
+////        a1 = -a1/5;
+////        a2 = -a2/5;
+////
+//////      // DEBUG: Use original acce for calibration
+//////        float a0 = v[0], a1 = v[1], a2 = v[2]; 
+////
+//////        EKFTranslation::setTranslation(T);  // set T , corected from camera
+//////        EKFTranslation::updateNoEKF(a0, a1, a2, dt);
+//////        EKFTranslation::updatePartialEKF(a0, a1, a2, dt);
+//////        EKFTranslation::updateAcc(a0, a1, a2);
+////        EKFTranslation::predictEKF(a0, a1, a2, dt);
+//////        EKFTranslation::getTranslation(T);   
+////    }
+//
+//    // Convert Axis
+//    // Set result in MapDrawer
+//    Converter::IMU2GLAxis(Q);
+//    mpMapDrawer->SetQ(Q);
+////    printf("\n===SetQ: %f %f %f %f\n\n", Q[0], Q[1], Q[2], Q[3]);
+////
+////    Converter::IMU2GLAxis(T);
+////    mpMapDrawer->SetT(T);
+////    printf("\n===IMU Translation: %f %f %f\n\n", T[0], T[1], T[2]);
+//
+//    // Set Init R
+//    if (imuCount == 200) {
+//        // Set init rotation
+//        cv::Mat initR_t = Converter::toMatrix(Q).t();
+//        {
+//            unique_lock<mutex> lock(mMutexInitR);
+//            InitR = cv::Mat::eye(4,4,CV_32FC1);
+//            initR_t.copyTo(cv::Mat(InitR, cv::Rect(0, 0, 3, 3)));
+//            printf("\n===Init R: %f %f %f %f \n %f %f %f %f\n %f %f %f %f \n %f %f %f %f\n\n", 
+//                    InitR.at<float>(0,0),InitR.at<float>(0,1),InitR.at<float>(0,2),InitR.at<float>(0,3),
+//                    InitR.at<float>(1,0),InitR.at<float>(1,1),InitR.at<float>(1,2),InitR.at<float>(1,3),
+//                    InitR.at<float>(2,0),InitR.at<float>(2,1),InitR.at<float>(2,2),InitR.at<float>(2,3),
+//                    InitR.at<float>(3,0),InitR.at<float>(3,1),InitR.at<float>(3,2),InitR.at<float>(3,3));
+//        }
+//    }
+//
+////    // Log to File
+////    std::vector<float> S;
+////    EKFTranslation::getStatus(S);
+////    logFile << a0 << " " << a1 << " " << a2 << " "
+////            << S[0] << " "<< S[1] << " "<< S[2] << " "
+////            << S[3] << " "<< S[4] << " "<< S[5] << " "
+////            << S[6] << " "<< S[7] << " "<< S[8] << std::endl;
+//
+//    imuCount++;
+//}
 
 void Tracking::Track()
 {
@@ -621,8 +765,12 @@ void Tracking::Track()
             mlpTemporalPoints.clear();
 
             // Check if we need to insert a new keyframe
-            if(NeedNewKeyFrame())
+            if(NeedNewKeyFrame()){
                 CreateNewKeyFrame();
+//                FuseCamera(mCurrentFrame.mTcw, (long long)mCurrentFrame.GetTimeStamp(), true);
+            } else {
+//                FuseCamera(mCurrentFrame.mTcw, (long long)mCurrentFrame.GetTimeStamp());
+            }
 
             // We allow points with high innovation (considererd outliers by the Huber Function)
             // pass to the new keyframe, so that bundle adjustment will finally decide
@@ -682,17 +830,17 @@ void Tracking::StereoInitialization()
 {
     if(mCurrentFrame.N>500)
     {
-        {
-            // Set Frame pose to the origin
-            unique_lock<mutex> lock(mMutexInitR);
-            if (InitR.empty()) {
-                printf("InitR has not ready!\n"); 
-                return;
-            }
-        }
-        mCurrentFrame.SetPose(InitR);
+//        {
+//            // Set Frame pose to the origin
+//            unique_lock<mutex> lock(mMutexInitR);
+//            if (InitR.empty()) {
+//                printf("InitR has not ready!\n"); 
+//                return;
+//            }
+//        }
+//        mCurrentFrame.SetPose(InitR);
 
-//        mCurrentFrame.SetPose(cv::Mat::eye(4,4,CV_32F));
+        mCurrentFrame.SetPose(cv::Mat::eye(4,4,CV_32F));
 
         // Create KeyFrame
         KeyFrame* pKFini = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
@@ -738,6 +886,7 @@ void Tracking::StereoInitialization()
         // Setcurrentcamerapose
         printf("Set Init Camera pose\n");
         mpMapDrawer->SetCurrentCameraPose(mCurrentFrame.mTcw);
+        //FuseCamera(mCurrentFrame.mTcw, (long long)mCurrentFrame.GetTimeStamp(), true);
         printf("Set Init Camera pose done\n");
 
         mState=OK;
@@ -923,6 +1072,8 @@ void Tracking::CreateInitialMapMonocular()
     mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
 
     mpMapDrawer->SetCurrentCameraPose(pKFcur->GetPose());
+//    cv::Mat Pose = pKFcur->GetPose();
+//    FuseCamera(Pose, (long long)mCurrentFrame.GetTimeStamp(), true);      // fuse camera pose in msf_ekf
 
     mpMap->mvpKeyFrameOrigins.push_back(pKFini);
 

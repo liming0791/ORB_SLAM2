@@ -57,7 +57,6 @@ void trackRGBD()
         long long depthTime, colorTime;
         oniDevicePtr->getFrameData(
                 (int16_t* )dMatPtr->data, (unsigned char*)cMatPtr->data, depthTime, colorTime);
-        double tframe = depthTime/1000000.0;
 
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
@@ -66,7 +65,7 @@ void trackRGBD()
 #endif
 
         // Pass the image to the SLAM system
-        SLAMPtr->TrackRGBD(*cMatPtr,*dMatPtr,tframe);
+        SLAMPtr->TrackRGBD(*cMatPtr,*dMatPtr,depthTime);
 
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
@@ -110,7 +109,7 @@ void trackIMU()
 
         if (IMUTime != Last_IMUTime && imuCount > 200) {
             printf("Trcking IMU\n");
-            SLAMPtr->TrackIMU(IMUData, IMUTime);
+//            SLAMPtr->TrackIMU(IMUData, IMUTime);
         } else {
             printf("warning: repeated imu data\n");
         }
