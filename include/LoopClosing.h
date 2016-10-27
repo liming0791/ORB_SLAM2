@@ -56,6 +56,8 @@ public:
     void SetTracker(Tracking* pTracker);
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
+	
+	void SetMap(Map* pMap);
 
     // Main function
     void Run();

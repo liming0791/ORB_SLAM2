@@ -377,4 +377,10 @@ void MapDrawer::GetT(std::vector<float> &_T)
 
 }
 
+
+void MapDrawer::SetMap(Map *pMap)
+{
+	mpMap = pMap;
+}
+
 } //namespace ORB_SLAM

@@ -56,6 +56,12 @@ public:
 
     void Release();
 
+    void SetFrameDrawer(FrameDrawer *pFrameDrawer);
+
+    void SetMapDrawer(MapDrawer *pMapDrawer);
+
+    void SetTracker(Tracking *pTracker);
+
 private:
 
     bool Stop();

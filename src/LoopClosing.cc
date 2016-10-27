@@ -56,6 +56,11 @@ void LoopClosing::SetLocalMapper(LocalMapping *pLocalMapper)
     mpLocalMapper=pLocalMapper;
 }
 
+void LoopClosing::SetMap(Map *pMap)
+{
+	mpMap = pMap;
+}
+
 
 void LoopClosing::Run()
 {

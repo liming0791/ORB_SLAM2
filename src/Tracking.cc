@@ -37,13 +37,16 @@
 
 #include<mutex>
 
+#include<chrono>
+
 
 using namespace std;
 
 namespace ORB_SLAM2
 {
 
-Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, const bool bReuse):
+Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, 
+				   KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, const bool bReuse):
     mState(NO_IMAGES_YET), mSensor(sensor), mbOnlyTracking(bReuse), mbVO(false), mpORBVocabulary(pVoc),
     mpKeyFrameDB(pKFDB), mpInitializer(static_cast<Initializer*>(NULL)), mpSystem(pSys),
     mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpMap(pMap), mnLastRelocFrameId(0)
@@ -177,47 +180,29 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     // init imucount
     imuCount = 0;
 
-    // init msf_ekf estimator
-//    estimator = new ekf::EstimatorDelayHider();
-//	estimator->SetState( Eigen::Vector3d(0, 0, 0.2), 	// p_i_w
-//			Eigen::Vector3d(0, 0, 0),				// v_i_w
-//			Eigen::Quaterniond(1, 0, 0, 0),		// q_i_w
-//			Eigen::Vector3d(0, 0, 0),				// b_omega
-//			Eigen::Vector3d(0, 0, 0),				// b_a
-//			log(1),								// lambda
-//			Eigen::Vector3d(0.05, 0, -0.10),    // p_c_i
-//			Eigen::Quaterniond(1, 1, -1, 1),    // q_c_i
-//			Eigen::Vector3d(0, 0, 0),				// p_w_v
-//			Eigen::Quaterniond(1, 0, 0, 0));		// q_w_v
-//	estimator->SetCalibration(0.02*0.02,		// sq_sigma_omega
-//            0.05*0.05,						    // sq_sigma_a
-//			0.001*0.001,					    // sq_sigma_b_omega
-//			0.001*0.001,					    // sq_sigma_a_omega
-//			1/400.0,							// Delta_t
-//            // Not convert Axis
-////			Eigen::Vector3d(0,0,10),			// g
-//            // Convert Axis
-//			Eigen::Vector3d(0,10,0),			// g
-//			0.0001,						        // noise of scaling for new KFs
-//			true);								// measurements are absolute (in contrast to incremental)
-//	Eigen::Matrix<double,28,1> P;
-//	P << 0, 0, 0.1,								// p_i_w
-//		0.2, 0.2, 0.2,							// v_i_w
-//		0.3, 0.3, 0,							// q_i_w
-//		0.01, 0.01, 0.01,						// b_omega
-//		0.01, 0.01, 0.01,						// b_a
-//		log(2),									// lambda
-//		0.005, 0.005, 0.005,					// p_c_i
-//		0.05, 0.05, 0.05,						// q_c_i
-//		0, 0, 0,								// p_w_v
-//		0, 0, 0;								// q_w_v
-//	P = 1*P.cwiseProduct(P);
-//	estimator->SetCovarianceDiagonal(P);
-//	estimator->estimatorFull.UpdateKeyframe(); // update initial camera pose (a bit hacky)
-//    estimator->Start();
+    // init Rotatio
+    InitR = cv::Mat::eye(4, 4, CV_32FC1);
 
     // int cameraReady
     cameraReady = false;
+}
+
+void Tracking::SetLost()
+{
+    mState = LOST;
+}
+
+void Tracking::SetMap(Map *pMap)
+{
+	mpMap = pMap;
+}
+
+void Tracking::SetInitR(const cv::Mat &initR)
+{
+    {
+        unique_lock<mutex> lock(mMutexInitR);
+        initR.copyTo(InitR);
+    }
 }
 
 void Tracking::SetLocalMapper(LocalMapping *pLocalMapper)
@@ -268,7 +253,11 @@ cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRe
         }
     }
 
+	auto beginTime = chrono::high_resolution_clock::now();
     mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+	auto endTime = chrono::high_resolution_clock::now();
+	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+	printf("Construct a Frame time: %f ms\n", dua/1000.f);
 
     Track();
 
@@ -276,7 +265,8 @@ cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRe
 }
 
 
-cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp)
+void Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp,
+        cv::Mat *_Tcw, int *status)
 {
     mImGray = imRGB;
     cv::Mat imDepth = imD;
@@ -295,15 +285,52 @@ cv::Mat Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const d
         else
             cvtColor(mImGray,mImGray,CV_BGRA2GRAY);
     }
-
+	
+// time
+	auto beginTime = chrono::high_resolution_clock::now();
+// time
+	
+//	cv::equalizeHist(mImGray,mImGray);	// optional
+	
+// time end
+	auto endTime = chrono::high_resolution_clock::now();
+	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+	printf("--equalizeHist time: %f ms\n", dua/1000.f);
+// time end
+	
     if(mDepthMapFactor!=1 || imDepth.type()!=CV_32F);
     imDepth.convertTo(imDepth,CV_32F,mDepthMapFactor);
 
-    mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
-
-    Track();
-
-    return mCurrentFrame.mTcw.clone();
+// time
+	beginTime = chrono::high_resolution_clock::now();
+// time
+    
+	mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+	
+// time end
+	endTime = chrono::high_resolution_clock::now();
+	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+	printf("--Construct a Frame time: %f ms\n", dua/1000.f);
+// time end
+	
+// time
+	beginTime = chrono::high_resolution_clock::now();
+// time
+	
+	Track();
+	
+// time end
+	endTime = chrono::high_resolution_clock::now();
+	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+	printf("--Track time: %f ms\n", dua/1000.f);
+// time end
+	
+    if (_Tcw != NULL) {
+        mCurrentFrame.mTcw.copyTo(*_Tcw);
+    }
+    if (status != NULL) {
+        *status = mState;
+    }
 }
 
 
@@ -363,215 +390,9 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
         return mCurrentFrame.mTcw.clone();
 }
 
-//void Tracking::FuseIMU(float* v, long long timestamp)
-//{
-///*
-// * timestamp in microsecend
-// * v is 9 length float vector
-// */ 
-//    // test if camera ready
-////    {
-////        std::lock_guard<mutex> lock(mCameraReadyMutex);
-////        if(!cameraReady)
-////            return;
-////    }
-//
-//    // Correct IMU Acce
-//    v[0] = (v[0] - IMUOffsetX)/IMUScaleX;
-//    v[1] = (v[1] - IMUOffsetY)/IMUScaleY;
-//    v[2] = (v[2] - IMUOffsetZ)/IMUScaleZ;
-//
-//    // Not Convert Axis
-////    Eigen::Vector3d a_m = Eigen::Vector3d(v[0], v[1], v[2]);
-////    Eigen::Vector3d omega_m = Eigen::Vector3d(v[3]/180*PI, v[4]/180*PI, v[5]/180*PI);
-//
-//    // Convert Axis
-//    Eigen::Vector3d a_m = Eigen::Vector3d(v[1], v[2], -v[0]);
-//    Eigen::Vector3d omega_m = Eigen::Vector3d(-v[4]/180*PI, -v[5]/180*PI, v[3]/180*PI);
-//
-//   
-//
-//    estimator->ImuMeasurement(omega_m,      // angular velocity, rad/s
-//            a_m,                            // accelerator, m/s
-//            0,                              // horizenal distance
-//            false,                          // if horizenal distance validate
-//            timestamp                       // imu timestamp
-//            );
-//
-//    updateFuseResult();
-//
-//}
-//
-//void Tracking::FuseCamera(cv::Mat &CameraPose, long long timestamp, bool ifKeyFrame)
-//{
-//    cv::Mat Rwc =  CameraPose.rowRange(0,3).colRange(0,3).t();
-//    cv::Mat twc = -Rwc*CameraPose.rowRange(0,3).col(3);
-//
-//    Eigen::Vector3d translation(twc.at<float>(0, 0), 
-//            twc.at<float>(1, 0),
-//            twc.at<float>(2, 0));
-//    Eigen::Matrix<double,3,3> RMat;
-//    RMat << Rwc.at<float>(0,0), 
-//      Rwc.at<float>(0,1), 
-//      Rwc.at<float>(0,2),
-//      Rwc.at<float>(1,0), 
-//      Rwc.at<float>(1,1), 
-//      Rwc.at<float>(1,2),
-//      Rwc.at<float>(2,0), 
-//      Rwc.at<float>(2,1), 
-//      Rwc.at<float>(2,2);
-//    Eigen::Quaterniond rotation_q(RMat);
-//    Eigen::Matrix<double,6,6> R = Eigen::Matrix<double,6,6>::Zero();
-//    R.diagonal()[0] = 0.01*0.01;
-//    R.diagonal()[1] = 0.01*0.01;
-//    R.diagonal()[2] = 0.01*0.01;
-//    R.diagonal()[3] = 0.1*0.1;
-//    R.diagonal()[4] = 0.1*0.1;
-//    R.diagonal()[5] = 0.05*0.05;
-//
-//    estimator->CameraMeasurement(
-//            translation,
-//            rotation_q,
-//            R,
-//            ifKeyFrame,
-//            timestamp);
-//
-//    updateFuseResult();
-//
-//    {
-//        std::lock_guard<mutex> lock(mCameraReadyMutex);
-//        cameraReady = true;
-//        printf("camera pose ready\n");
-//    }
-//
-//}
-//
-//void Tracking::updateFuseResult()
-//{
-//    {
-//        std::lock_guard<mutex> lock(mUpdateFuseMutex);
-//
-//        Eigen::Vector3d p, v, a, omega;
-//        Eigen::Quaterniond q;
-//        estimator->GetState(p, v, q, omega, a);
-//
-//        // Print log
-//        logFile << p(0) << " " << p(1) << " " << p(2) << " "
-//            << v(0) << " " << v(1) << " " << v(2) << " "
-//            << a(0) << " " << a(1) << " " << a(2) << endl;
-//        // Print log end
-//        
-//        // Set Camerapose in MapDrawer
-//        mpMapDrawer->SetCurrentCameraPose(p, q);
-//    }
-//}
-//
-//void Tracking::TrackIMU(float* v, long long timestamp)
-//{
-//
-///*
-// * timestamp in microsecend
-// * v is 9 length float vector
-// */ 
-//
-//    // Correct IMU 
-//    v[0] = (v[0] - IMUOffsetX)/IMUScaleX;
-//    v[1] = (v[1] - IMUOffsetY)/IMUScaleY;
-//    v[2] = (v[2] - IMUOffsetZ)/IMUScaleZ;
-//
-//    std::vector<float> Q;
-//    mpMapDrawer->GetQ(Q);
-//    if(Q.empty()){
-//        Q.resize(4);
-//        Q[0] = 1; Q[1] = Q[2] = Q[3] = 0;
-//    }
-//    Converter::GL2IMUAxis(Q);
-//    printf("\n===GetQ: %f %f %f %f\n\n", Q[0], Q[1], Q[2], Q[3]);
-//
-//    float dt = ((timestamp - lastIMUTime)/1000000.0);
-//    lastIMUTime = timestamp;
-//    printf("dt: %f\n", dt);
-//    if (dt <= 0) {
-//        printf("Error: dt should not be 0\n");
-//        return;
-//    }
-//
-//    // Compute orientation
-//    MahonyAHRS::updateIMU(v[3]/180*PI, v[4]/180*PI, v[5]/180*PI, 
-//            v[0], v[1], v[2],
-//            1/dt, 
-//            Q[0], Q[1], Q[2], Q[3]);    
-//
-////    // Compute position, delay 5 seconds, wont be used bacause error too large
-////    float a0 = 0, a1 = 0, a2 =0;
-////    if(imuCount>=1500)
-////    {
-////        // Caculate real acce
-////        cv::Mat RMat = Converter::toMatrix(Q);
-////        float *R = RMat.ptr<float>(0); 
-////        a0 = R[0]*v[0] + R[1]*v[1] + R[2]*v[2];
-////        a1 = R[3]*v[0] + R[4]*v[1] + R[5]*v[2];
-////        a2 = R[6]*v[0] + R[7]*v[1] + R[8]*v[2];
-////        a2 -= 10;       //rotate the acce and eliminate the g
-////
-//////        printf("\n===Original Acce: %f %f %f \n\n", v[0], v[1], v[2]);
-//////        printf("\n===Rotated Acce: %f %f %f \n\n", a0, a1, a2);
-////
-////        // Convert to ORB_SLAM scale
-////        a0 = -a0/5;
-////        a1 = -a1/5;
-////        a2 = -a2/5;
-////
-//////      // DEBUG: Use original acce for calibration
-//////        float a0 = v[0], a1 = v[1], a2 = v[2]; 
-////
-//////        EKFTranslation::setTranslation(T);  // set T , corected from camera
-//////        EKFTranslation::updateNoEKF(a0, a1, a2, dt);
-//////        EKFTranslation::updatePartialEKF(a0, a1, a2, dt);
-//////        EKFTranslation::updateAcc(a0, a1, a2);
-////        EKFTranslation::predictEKF(a0, a1, a2, dt);
-//////        EKFTranslation::getTranslation(T);   
-////    }
-//
-//    // Convert Axis
-//    // Set result in MapDrawer
-//    Converter::IMU2GLAxis(Q);
-//    mpMapDrawer->SetQ(Q);
-////    printf("\n===SetQ: %f %f %f %f\n\n", Q[0], Q[1], Q[2], Q[3]);
-////
-////    Converter::IMU2GLAxis(T);
-////    mpMapDrawer->SetT(T);
-////    printf("\n===IMU Translation: %f %f %f\n\n", T[0], T[1], T[2]);
-//
-//    // Set Init R
-//    if (imuCount == 200) {
-//        // Set init rotation
-//        cv::Mat initR_t = Converter::toMatrix(Q).t();
-//        {
-//            unique_lock<mutex> lock(mMutexInitR);
-//            InitR = cv::Mat::eye(4,4,CV_32FC1);
-//            initR_t.copyTo(cv::Mat(InitR, cv::Rect(0, 0, 3, 3)));
-//            printf("\n===Init R: %f %f %f %f \n %f %f %f %f\n %f %f %f %f \n %f %f %f %f\n\n", 
-//                    InitR.at<float>(0,0),InitR.at<float>(0,1),InitR.at<float>(0,2),InitR.at<float>(0,3),
-//                    InitR.at<float>(1,0),InitR.at<float>(1,1),InitR.at<float>(1,2),InitR.at<float>(1,3),
-//                    InitR.at<float>(2,0),InitR.at<float>(2,1),InitR.at<float>(2,2),InitR.at<float>(2,3),
-//                    InitR.at<float>(3,0),InitR.at<float>(3,1),InitR.at<float>(3,2),InitR.at<float>(3,3));
-//        }
-//    }
-//
-////    // Log to File
-////    std::vector<float> S;
-////    EKFTranslation::getStatus(S);
-////    logFile << a0 << " " << a1 << " " << a2 << " "
-////            << S[0] << " "<< S[1] << " "<< S[2] << " "
-////            << S[3] << " "<< S[4] << " "<< S[5] << " "
-////            << S[6] << " "<< S[7] << " "<< S[8] << std::endl;
-//
-//    imuCount++;
-//}
-
 void Tracking::Track()
 {
+	//cout << "Tracking..." << endl;
     if(mState==NO_IMAGES_YET)
     {
         mState = NOT_INITIALIZED;
@@ -604,6 +425,10 @@ void Tracking::Track()
         // System is initialized. Track Frame.
         bool bOK;
 
+// time it 
+		auto beginTime = chrono::high_resolution_clock::now();
+// time it
+		
         // Initial camera pose estimation using motion model or relocalization (if tracking is lost)
         if(!mbOnlyTracking)
         {
@@ -618,16 +443,25 @@ void Tracking::Track()
                 if(mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
                 {
                     bOK = TrackReferenceKeyFrame();
+					if (!bOK) {
+						printf("LOST: TrackReferenceKeyFrame Failed!\n");
+					}
                 }
                 else
                 {
                     bOK = TrackWithMotionModel();
-                    if(!bOK)
+                    if (!bOK) {
+						printf("LOST: TrackWithMotionModel Failed!\n");
                         bOK = TrackReferenceKeyFrame();
+						if (!bOK) {
+							printf("LOST: TrackReferenceKeyFrame Failed!\n");
+						}
+					}
                 }
             }
             else
             {
+				printf("Do Relocatization, with mapping...\n");
                 bOK = Relocalization();
             }
         }
@@ -637,6 +471,7 @@ void Tracking::Track()
 
             if(mState==LOST)
             {
+				printf("Do Relocatization, only tracking...\n");
                 bOK = Relocalization();
             }
             else
@@ -703,32 +538,67 @@ void Tracking::Track()
             }
         }
 
+// time it
+		auto endTime = chrono::high_resolution_clock::now();
+		long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+		printf("----Initial camera pose time: %f ms\n", dua/1000.f);
+// time it
+		
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
+// time it 
+		beginTime = chrono::high_resolution_clock::now();
+// time it
+		
         // If we have an initial estimation of the camera pose and matching. Track the local map.
         if(!mbOnlyTracking)
         {
-            if(bOK)
+            if (bOK) {
                 bOK = TrackLocalMap();
+				if (!bOK) {
+					printf("LOST: TrackLocalMap Failed!\n");
+				}
+			}
         }
         else
         {
             // mbVO true means that there are few matches to MapPoints in the map. We cannot retrieve
             // a local map and therefore we do not perform TrackLocalMap(). Once the system relocalizes
             // the camera we will use the local map again.
-            if(bOK && !mbVO)
+            if (bOK && !mbVO) {
                 bOK = TrackLocalMap();
+				if (!bOK) {
+					printf("LOST: TrackLocalMap Failed!\n");
+				}
+			}
         }
+		
+// time it
+		endTime = chrono::high_resolution_clock::now();
+		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+		printf("----Track the local map time: %f ms\n", dua/1000.f);
+// time it
+		
+		printf("--------LocalMap keypoints num: %f\n", mvpLocalMapPoints.size()+0.01);
 
         if(bOK)
             mState = OK;
-        else
+        else {
             mState=LOST;
+			printf("LOST: really lost!\n");
+		}
 
         // Update drawer
+		//cout << "Update FrameDrawer" << endl;
         mpFrameDrawer->Update(this);
+		//cout << "Update FrameDrawer done" << endl;
 
+// time it 
+		beginTime = chrono::high_resolution_clock::now();
+// time it
+		
         // If tracking were good, check if we insert a keyframe
+		//cout << "Check keyframe" << endl;
         if(bOK)
         {
             // Update motion model
@@ -767,9 +637,6 @@ void Tracking::Track()
             // Check if we need to insert a new keyframe
             if(NeedNewKeyFrame()){
                 CreateNewKeyFrame();
-//                FuseCamera(mCurrentFrame.mTcw, (long long)mCurrentFrame.GetTimeStamp(), true);
-            } else {
-//                FuseCamera(mCurrentFrame.mTcw, (long long)mCurrentFrame.GetTimeStamp());
             }
 
             // We allow points with high innovation (considererd outliers by the Huber Function)
@@ -782,7 +649,14 @@ void Tracking::Track()
                     mCurrentFrame.mvpMapPoints[i]=static_cast<MapPoint*>(NULL);
             }
         }
-
+		//cout << "Check keyframe done" << endl;
+		
+// time it
+		endTime = chrono::high_resolution_clock::now();
+		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+		printf("----Check keyframe time: %f ms\n", dua/1000.f);
+// time it
+		
         // Reset if the camera get lost soon after initialization
         if(mState==LOST)
         {
@@ -799,7 +673,11 @@ void Tracking::Track()
 
         mLastFrame = Frame(mCurrentFrame);
     }
-
+	
+// time it 
+		auto beginTime = chrono::high_resolution_clock::now();
+// time it
+		
     // Store frame pose information to retrieve the complete camera trajectory afterwards.
     if(!mCurrentFrame.mTcw.empty() && mCurrentFrame.mpReferenceKF)
     {
@@ -817,6 +695,14 @@ void Tracking::Track()
         mlFrameTimes.push_back(mlFrameTimes.back());
         mlbLost.push_back(mState==LOST);
     }
+	
+// time it
+		auto endTime = chrono::high_resolution_clock::now();
+		long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+		printf("----Store frame pose time: %f ms\n", dua/1000.f);
+// time it	
+		
+	//cout << "Tracking Done" << endl;
 }
 #if 0
 cv::Mat Tracking::getTransformData()
@@ -830,17 +716,13 @@ void Tracking::StereoInitialization()
 {
     if(mCurrentFrame.N>500)
     {
-//        {
-//            // Set Frame pose to the origin
-//            unique_lock<mutex> lock(mMutexInitR);
-//            if (InitR.empty()) {
-//                printf("InitR has not ready!\n"); 
-//                return;
-//            }
-//        }
-//        mCurrentFrame.SetPose(InitR);
+        {
+            // Set Frame pose to the origin
+            unique_lock<mutex> lock(mMutexInitR);
+            mCurrentFrame.SetPose(InitR);
+        }
 
-        mCurrentFrame.SetPose(cv::Mat::eye(4,4,CV_32F));
+//        mCurrentFrame.SetPose(cv::Mat::eye(4,4,CV_32F));
 
         // Create KeyFrame
         KeyFrame* pKFini = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
@@ -1276,14 +1158,48 @@ bool Tracking::TrackLocalMap()
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
 
+// time it 
+		auto beginTime = chrono::high_resolution_clock::now();
+// time it
+		
     UpdateLocalMap();
 
+// time it
+		auto endTime = chrono::high_resolution_clock::now();
+		long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+		printf("------UpdateLocalMap time: %f ms\n", dua/1000.f);
+// time it
+
+// time it 
+		beginTime = chrono::high_resolution_clock::now();
+// time it
+		
     SearchLocalPoints();
 
+// time it
+		endTime = chrono::high_resolution_clock::now();
+		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+		printf("------SearchLocalPoints time: %f ms\n", dua/1000.f);
+// time it
+		
+// time it 
+		beginTime = chrono::high_resolution_clock::now();
+// time it
+		
     // Optimize Pose
     Optimizer::PoseOptimization(&mCurrentFrame);
     mnMatchesInliers = 0;
-
+	
+// time it
+		endTime = chrono::high_resolution_clock::now();
+		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+		printf("------PoseOptimization time: %f ms\n", dua/1000.f);
+// time it
+		
+// time it 
+		beginTime = chrono::high_resolution_clock::now();
+// time it
+		
     // Update MapPoints Statistics
     for(int i=0; i<mCurrentFrame.N; i++)
     {
@@ -1306,6 +1222,12 @@ bool Tracking::TrackLocalMap()
         }
     }
 
+// time it
+		endTime = chrono::high_resolution_clock::now();
+		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+		printf("------Update MapPoints Statistics time: %f ms\n", dua/1000.f);
+// time it
+		
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
@@ -1499,6 +1421,11 @@ void Tracking::CreateNewKeyFrame()
 
 void Tracking::SearchLocalPoints()
 {
+
+// time it 
+	auto beginTime = chrono::high_resolution_clock::now();
+// time it
+
     // Do not search map points already matched
     for(vector<MapPoint*>::iterator vit=mCurrentFrame.mvpMapPoints.begin(), vend=mCurrentFrame.mvpMapPoints.end(); vit!=vend; vit++)
     {
@@ -1517,9 +1444,19 @@ void Tracking::SearchLocalPoints()
             }
         }
     }
+	
+// time it
+	auto endTime = chrono::high_resolution_clock::now();
+	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+	printf("--------set already matched time: %f ms\n", dua/1000.f);
+// time it
 
     int nToMatch=0;
 
+// time it 
+	beginTime = chrono::high_resolution_clock::now();
+// time it
+	
     // Project points in frame and check its visibility
     for(vector<MapPoint*>::iterator vit=mvpLocalMapPoints.begin(), vend=mvpLocalMapPoints.end(); vit!=vend; vit++)
     {
@@ -1535,7 +1472,17 @@ void Tracking::SearchLocalPoints()
             nToMatch++;
         }
     }
+	
+// time it
+	endTime = chrono::high_resolution_clock::now();
+	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+	printf("--------check visibility time: %f ms\n", dua/1000.f);
+// time it
 
+// time it 
+	beginTime = chrono::high_resolution_clock::now();
+// time it
+	
     if(nToMatch>0)
     {
         ORBmatcher matcher(0.8);
@@ -1547,6 +1494,15 @@ void Tracking::SearchLocalPoints()
             th=5;
         matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
     }
+	
+// time it
+	endTime = chrono::high_resolution_clock::now();
+	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+	printf("--------SearchByProjection time: %f ms\n", dua/1000.f);
+// time it
+	
+	
+	
 }
 
 void Tracking::UpdateLocalMap()
@@ -1711,7 +1667,7 @@ bool Tracking::Relocalization()
 
     const int nKFs = vpCandidateKFs.size();
 
-    //cout << "Relocalization: candidates =  " << nKFs  << endl;
+    cout << "Relocalization: candidates =  " << nKFs  << endl;
 
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
@@ -1815,7 +1771,7 @@ bool Tracking::Relocalization()
                 // If few inliers, search by projection in a coarse window and optimize again
                 if(nGood<50)
                 {
-                    //cout << "Relocalization:  inliers < 50 : nGood = " << nGood << endl;
+                    cout << "Relocalization:  inliers < 50 : nGood = " << nGood << endl;
 
                     int nadditional =matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,10,100);
 
@@ -1859,6 +1815,7 @@ bool Tracking::Relocalization()
 
     if(!bMatch)
     {
+		cout << "Relocalization Failed!" << endl;
         return false;
     }
     else

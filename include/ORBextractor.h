@@ -24,6 +24,10 @@
 #include <vector>
 #include <list>
 #include <opencv/cv.h>
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/nonfree/features2d.hpp>
+#include <opencv2/legacy/legacy.hpp>
+
 
 
 namespace ORB_SLAM2
@@ -92,6 +96,7 @@ protected:
                                            const int &maxX, const int &minY, const int &maxY, const int &nFeatures, const int &level);
 
     void ComputeKeyPointsOld(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);
+	void ComputeSURFKeyPointsOctTree(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);
     std::vector<cv::Point> pattern;
 
     int nfeatures;

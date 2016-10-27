@@ -47,6 +47,11 @@ void LocalMapping::SetTracker(Tracking *pTracker)
     mpTracker=pTracker;
 }
 
+void LocalMapping::SetMap(Map *pMap)
+{
+	mpMap = pMap;
+}
+
 void LocalMapping::Run()
 {
 

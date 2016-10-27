@@ -55,6 +55,8 @@ public:
     void SetT(cv::Mat &twc);
     void SetT(float x, float y, float z);
     void GetT(std::vector<float> &_T);
+	
+	void SetMap(Map *pMap);
 
 private:
 

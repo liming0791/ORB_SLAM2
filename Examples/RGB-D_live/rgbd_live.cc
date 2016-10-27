@@ -44,6 +44,7 @@ float IMUData[9];
 Oni_IMU* oniDevicePtr = NULL;
 cv::Mat *dMatPtr = NULL, *cMatPtr= NULL;
 ORB_SLAM2::System* SLAMPtr = NULL;
+int frameCount = 0;
 
 
 void trackRGBD()
@@ -74,11 +75,11 @@ void trackRGBD()
 #endif
 
         double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
-
-        printf("tracking time: %f\n", ttrack);
+        printf("tracking time: %f ms\n", ttrack*1000.f);
 
         avetime+=ttrack;
         avetime/=2;
+
 
         // Wait to load the next frame, 30Hz
         float waitTime = 0.100000;
@@ -189,7 +190,7 @@ int main(int argc, char **argv)
     SLAM.Shutdown();
 
     // Save Map
-    SLAM.SaveMap("Slam_Map.bin");
+    SLAM.SaveMap("SlamMap.bin");
 
     // Tracking time statistics
     cout << "-------" << endl << endl;

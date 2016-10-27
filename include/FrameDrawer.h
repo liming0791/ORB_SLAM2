@@ -48,6 +48,10 @@ public:
     // Draw last processed frame.
     cv::Mat DrawFrame();
 
+    // Set Lost
+    void SetLost();
+	void SetMap(Map *pMap);
+
 protected:
 
     void DrawTextInfo(cv::Mat &im, int nState, cv::Mat &imText);

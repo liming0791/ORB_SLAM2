@@ -38,6 +38,16 @@ FrameDrawer::FrameDrawer(Map* pMap, bool bReuse):mpMap(pMap)
     mIm = cv::Mat(480,640,CV_8UC3, cv::Scalar(0,0,0));
 }
 
+void FrameDrawer::SetLost()
+{
+    mState = Tracking::LOST;
+}
+
+void FrameDrawer::SetMap(Map *pMap)
+{
+	mpMap = pMap;
+}
+
 cv::Mat FrameDrawer::DrawFrame()
 {
     cv::Mat im;

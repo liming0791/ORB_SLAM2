@@ -236,4 +236,19 @@ void Viewer::Release()
     mbStopped = false;
 }
 
+void Viewer::SetFrameDrawer(FrameDrawer *pFrameDrawer)
+{
+    mpFrameDrawer = pFrameDrawer;
+}
+
+void Viewer::SetMapDrawer(MapDrawer *pMapDrawer)
+{
+    mpMapDrawer = pMapDrawer;
+}
+
+void Viewer::SetTracker(Tracking *pTracker)
+{
+    mpTracker = pTracker;
+}
+
 }
