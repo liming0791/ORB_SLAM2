@@ -28,6 +28,8 @@
 
 #include<System.h>
 
+#include<gperftools/profiler.h>
+
 using namespace std;
 
 void LoadImages(const string &strAssociationFilename, vector<string> &vstrImageFilenamesRGB,
@@ -35,6 +37,9 @@ void LoadImages(const string &strAssociationFilename, vector<string> &vstrImageF
 
 int main(int argc, char **argv)
 {
+
+    ProfilerStart("profile.prof");
+
     if(argc != 6)
     {
         cerr << endl << "Usage: ./rgbd_tum path_to_vocabulary path_to_settings path_to_sequence path_to_association reuse" << endl;
@@ -140,6 +145,8 @@ int main(int argc, char **argv)
 
     // Save camera trajectory
     SLAM.SaveTrajectoryTUM("CameraTrajectory.txt");
+
+    ProfilerStop();
 
     return 0;
 }

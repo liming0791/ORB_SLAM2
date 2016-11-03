@@ -26,6 +26,7 @@
 
 #include<opencv2/core/core.hpp>
 #include<opencv2/features2d/features2d.hpp>
+#include<opencv2/gpu/gpu.hpp>
 
 
 #include"Viewer.h"
@@ -35,8 +36,9 @@
 #include"LoopClosing.h"
 #include"Frame.h"
 #include "ORBVocabulary.h"
-#include"KeyFrameDatabase.h"
-#include"ORBextractor.h"
+#include "KeyFrameDatabase.h"
+#include "ORBextractor.h"
+#include "ORBextractorGPU.h"
 #include "Initializer.h"
 #include "MapDrawer.h"
 #include "System.h"
@@ -169,8 +171,13 @@ protected:
     LoopClosing* mpLoopClosing;
 
     //ORB
+#ifdef USE_GPU
+	ORBextractorGPU *mpORBextractorLeft, *mpORBextractorRight;
+	ORBextractorGPU *mpIniORBextractor;
+#else
     ORBextractor* mpORBextractorLeft, *mpORBextractorRight;
     ORBextractor* mpIniORBextractor;
+#endif
 
     //BoW
     ORBVocabulary* mpORBVocabulary;

@@ -33,6 +33,8 @@
 
 #include<System.h>
 
+#include<gperftools/profiler.h>
+
 
 using namespace std;
 
@@ -66,7 +68,9 @@ void trackRGBD()
 #endif
 
         // Pass the image to the SLAM system
+        ProfilerStart("TrackRGBD.prof");
         SLAMPtr->TrackRGBD(*cMatPtr,*dMatPtr,depthTime);
+        ProfilerStop();
 
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
@@ -160,6 +164,8 @@ int main(int argc, char **argv)
     dMatPtr = &imD;
     cMatPtr = &imRGB;
 
+
+    ProfilerStart("profile.prof");
     //start trackRGB thread
     std::thread *mpTrackRGBDThread = NULL;
     if(usergbd){
@@ -198,6 +204,8 @@ int main(int argc, char **argv)
 
     // Save camera trajectory
     SLAM.SaveTrajectoryTUM("CameraTrajectory.txt");
+    
+    ProfilerStop();
 
     return 0;
 }

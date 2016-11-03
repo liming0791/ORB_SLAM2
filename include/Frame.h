@@ -22,6 +22,7 @@
 #define FRAME_H
 
 #include<vector>
+#include<opencv2/gpu/gpu.hpp>
 
 #include "MapPoint.h"
 #include "Thirdparty/DBoW2/DBoW2/BowVector.h"
@@ -29,6 +30,7 @@
 #include "ORBVocabulary.h"
 #include "KeyFrame.h"
 #include "ORBextractor.h"
+#include "ORBextractorGPU.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -47,7 +49,19 @@ public:
 
     // Copy constructor.
     Frame(const Frame &frame);
+#ifdef USE_GPU
+	
+	// Constructor for stereo cameras.
+    Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeStamp, ORBextractorGPU* extractorLeft, ORBextractorGPU* extractorRight, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
 
+    // Constructor for RGB-D cameras.
+    Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeStamp, ORBextractorGPU* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
+
+    // Constructor for Monocular cameras.
+    Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractorGPU* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
+	
+#else
+	
     // Constructor for stereo cameras.
     Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeStamp, ORBextractor* extractorLeft, ORBextractor* extractorRight, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
 
@@ -57,6 +71,7 @@ public:
     // Constructor for Monocular cameras.
     Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
 
+#endif
     // Extract ORB on the image. 0 for left image and 1 for right image.
     void ExtractORB(int flag, const cv::Mat &im);
 
@@ -87,10 +102,13 @@ public:
     bool PosInGrid(const cv::KeyPoint &kp, int &posX, int &posY);
 
     vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r, const int minLevel=-1, const int maxLevel=-1) const;
-
+#ifdef USE_GPU
+	//TODO: void ComputeStereoMatches();
+#else
     // Search a match for each keypoint in the left image to a keypoint in the right image.
     // If there is a match, depth is computed and the right coordinate associated to the left keypoint is stored.
     void ComputeStereoMatches();
+#endif
 
     // Associate a "right" coordinate to a keypoint if there is valid depth in the depthmap.
     void ComputeStereoFromRGBD(const cv::Mat &imDepth);
@@ -107,7 +125,11 @@ public:
     ORBVocabulary* mpORBvocabulary;
 
     // Feature extractor. The right is used only in the stereo case.
+#ifdef USE_GPU
+	ORBextractorGPU *mpORBextractorLeft, *mpORBextractorRight;
+#else
     ORBextractor* mpORBextractorLeft, *mpORBextractorRight;
+#endif
 
     // Frame timestamp.
     double mTimeStamp;

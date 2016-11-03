@@ -18,7 +18,7 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+#include <sys/time.h>
 #include "Tracking.h"
 
 #include<opencv2/core/core.hpp>
@@ -141,13 +141,31 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     int fIniThFAST = fSettings["ORBextractor.iniThFAST"];
     int fMinThFAST = fSettings["ORBextractor.minThFAST"];
 
+#ifdef USE_GPU
+	printf("use GPU ORB extractor!\n");
+	mpORBextractorLeft = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
+#else
     mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+#endif
 
-    if(sensor==System::STEREO)
+
+    if(sensor==System::STEREO){
+#ifdef USE_GPU
+		printf("use GPU ORB extractor!\n");
+		mpORBextractorRight = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
+#else
         mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+#endif
+	}
 
-    if(sensor==System::MONOCULAR)
+    if(sensor==System::MONOCULAR){
+#ifdef USE_GPU
+		printf("use GPU ORB extractor!\n");
+		mpIniORBextractor = new ORBextractorGPU(2*nFeatures, fScaleFactor, nLevels);
+#else
         mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+#endif
+	}
 
     cout << endl  << "ORB Extractor Parameters: " << endl;
     cout << "- Number of Features: " << nFeatures << endl;
@@ -286,43 +304,33 @@ void Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const doub
             cvtColor(mImGray,mImGray,CV_BGRA2GRAY);
     }
 	
-// time
-	auto beginTime = chrono::high_resolution_clock::now();
-// time
-	
-//	cv::equalizeHist(mImGray,mImGray);	// optional
-	
-// time end
-	auto endTime = chrono::high_resolution_clock::now();
-	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-	printf("--equalizeHist time: %f ms\n", dua/1000.f);
-// time end
-	
     if(mDepthMapFactor!=1 || imDepth.type()!=CV_32F);
     imDepth.convertTo(imDepth,CV_32F,mDepthMapFactor);
 
 // time
-	beginTime = chrono::high_resolution_clock::now();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
 // time
     
 	mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 	
 // time end
-	endTime = chrono::high_resolution_clock::now();
-	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-	printf("--Construct a Frame time: %f ms\n", dua/1000.f);
+    gettimeofday(&end, NULL);
+	printf("--Construct a Frame time: %f ms\n", ((end.tv_sec - start.tv_sec)*1000000u +
+            end.tv_usec - start.tv_usec)/1e3);
+	//printf("--Construct a Frame time: %f ms\n", dua/1000.f);
 // time end
 	
 // time
-	beginTime = chrono::high_resolution_clock::now();
+    gettimeofday(&start, NULL);
 // time
 	
 	Track();
 	
 // time end
-	endTime = chrono::high_resolution_clock::now();
-	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-	printf("--Track time: %f ms\n", dua/1000.f);
+    gettimeofday(&end, NULL);
+	printf("--Track time: %f ms\n", ((end.tv_sec - start.tv_sec)*1000000u +
+			end.tv_usec - start.tv_usec)/1e3);
 // time end
 	
     if (_Tcw != NULL) {

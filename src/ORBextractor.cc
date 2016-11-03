@@ -54,12 +54,14 @@
 */
 
 
+#include <sys/time.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
 #include <chrono>
+#include <omp.h>
 #include "ORBextractor.h"
 
 
@@ -770,13 +772,12 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
     const float W = 30;
 
 // time
-	auto beginTime = chrono::high_resolution_clock::now();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+//    auto beginTime = chrono::high_resolution_clock::now();
 // time
 
-// time inner
-	long long fast_dua = 0, oct_dua = 0;
-// time inner
-	
+//#pragma omp parallel for
     for (int level = 0; level < nlevels; ++level)
     {
         const int minBorderX = EDGE_THRESHOLD-3;
@@ -785,7 +786,7 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
         const int maxBorderY = mvImagePyramid[level].rows-EDGE_THRESHOLD+3;
 
         vector<cv::KeyPoint> vToDistributeKeys;
-        //vToDistributeKeys.reserve(nfeatures*10);
+        vToDistributeKeys.reserve(nfeatures*10);
 
         const float width = (maxBorderX-minBorderX);
         const float height = (maxBorderY-minBorderY);
@@ -795,10 +796,6 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
         const int wCell = ceil(width/nCols);
         const int hCell = ceil(height/nRows);
 
-// time
-		auto fast_beginTime = chrono::high_resolution_clock::now();
-// time
-		
         for(int i=0; i<nRows; i++)
         {
             const float iniY =minBorderY+i*hCell;
@@ -841,30 +838,12 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
             }
         }
 		
-		//printf("detect fast keypoints...\n");
-		//FAST(mvImagePyramid[level].rowRange(minBorderY,maxBorderY).colRange(minBorderX,maxBorderX), vToDistributeKeys, iniThFAST, true);
-		//printf("detect fast keypoints done, keypoints length %d\n", vToDistributeKeys.size());
-
-		
-// time end
-		auto fast_endTime = chrono::high_resolution_clock::now();
-		fast_dua += (long long)chrono::duration_cast<chrono::microseconds>(fast_endTime - fast_beginTime).count();
-// time end
-		
         vector<KeyPoint> & keypoints = allKeypoints[level];
         keypoints.reserve(nfeatures);
 
-// time
-		auto oct_beginTime = chrono::high_resolution_clock::now();
-// time
-		
+	
         keypoints = DistributeOctTree(vToDistributeKeys, minBorderX, maxBorderX,
                                       minBorderY, maxBorderY,mnFeaturesPerLevel[level], level);
-		
-// time end
-		auto oct_endTime = chrono::high_resolution_clock::now();
-		oct_dua += (long long)chrono::duration_cast<chrono::microseconds>(oct_endTime - oct_beginTime).count();
-// time end
 
         const int scaledPatchSize = PATCH_SIZE*mvScaleFactor[level];
 
@@ -880,15 +859,12 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
     }
 
 // time end
-	auto endTime = chrono::high_resolution_clock::now();
-	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-    printf("------Detect KeyPoints time: %f ms\n", dua/1000.f);
-	printf("--------FAST time: %f ms\n", fast_dua/1000.f);
-	printf("--------Oct time: %f ms\n", oct_dua/1000.f);
+    gettimeofday(&end, NULL);
+    printf("--------Detect KeyPoints time: %f ms\n", ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e3);
 // time end
 
 // time
-	beginTime = chrono::high_resolution_clock::now();
+	auto beginTime = chrono::high_resolution_clock::now();
 // time
 	
     // compute orientations
@@ -896,9 +872,9 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
         computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
 	
 // time end
-	endTime = chrono::high_resolution_clock::now();
-	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-    printf("------Compute Orientation time: %f ms\n", dua/1000.f);
+	auto endTime = chrono::high_resolution_clock::now();
+	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+    printf("--------Compute Orientation time: %f ms\n", dua/1000.f);
 // time end
 	
 }
@@ -1236,6 +1212,8 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     // Pre-compute the scale pyramid
 // time
 	auto beginTime = chrono::high_resolution_clock::now();
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
 // time
 	
     ComputePyramid(image);
@@ -1243,7 +1221,9 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
 // time end
 	auto endTime = chrono::high_resolution_clock::now();
 	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-	printf("------ComputePyramid time: %f ms\n", dua/1000.f);
+    gettimeofday(&end, NULL);
+	printf("------ComputePyramid time: %f ms\n", ((end.tv_sec - start.tv_sec)*1000000u +
+            end.tv_usec - start.tv_usec)/1e3);
 // time end
 
 // time
@@ -1291,7 +1271,7 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
 
         // preprocess the resized image
         Mat workingMat = mvImagePyramid[level].clone();
-//        GaussianBlur(workingMat, workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
+        GaussianBlur(workingMat, workingMat, Size(7, 7), 2, 2, BORDER_REFLECT_101);
 
         // Compute the descriptors
         Mat desc = descriptors.rowRange(offset, offset + nkeypointsLevel);
@@ -1320,28 +1300,49 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
 
 void ORBextractor::ComputePyramid(cv::Mat image)
 {
+
+// parallel edition
+//#pragma omp parallel for
     for (int level = 0; level < nlevels; ++level)
     {
         float scale = mvInvScaleFactor[level];
         Size sz(cvRound((float)image.cols*scale), cvRound((float)image.rows*scale));
         Size wholeSize(sz.width + EDGE_THRESHOLD*2, sz.height + EDGE_THRESHOLD*2);
         Mat temp(wholeSize, image.type()), masktemp;
-        mvImagePyramid[level] = temp(Rect(EDGE_THRESHOLD, EDGE_THRESHOLD, sz.width, sz.height));
+        mvImagePyramid[level] = 
+            temp(Rect(EDGE_THRESHOLD, EDGE_THRESHOLD, sz.width, sz.height));
 
         // Compute the resized image
-        if( level != 0 )
-        {
-            resize(mvImagePyramid[level-1], mvImagePyramid[level], sz, 0, 0, INTER_LINEAR);
-
-            copyMakeBorder(mvImagePyramid[level], temp, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD,
-                           BORDER_REFLECT_101+BORDER_ISOLATED);            
-        }
-        else
-        {
-            copyMakeBorder(image, temp, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD,
-                           BORDER_REFLECT_101);            
-        }
+        resize(image , mvImagePyramid[level], sz, 0, 0, INTER_LINEAR);
+        copyMakeBorder(mvImagePyramid[level], temp, 
+                EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD,
+                BORDER_REFLECT_101+BORDER_ISOLATED);            
+        
     }
+
+// original edition
+//    for (int level = 0; level < nlevels; ++level)
+//    {
+//        float scale = mvInvScaleFactor[level];
+//        Size sz(cvRound((float)image.cols*scale), cvRound((float)image.rows*scale));
+//        Size wholeSize(sz.width + EDGE_THRESHOLD*2, sz.height + EDGE_THRESHOLD*2);
+//        Mat temp(wholeSize, image.type()), masktemp;
+//        mvImagePyramid[level] = temp(Rect(EDGE_THRESHOLD, EDGE_THRESHOLD, sz.width, sz.height));
+//
+//        // Compute the resized image
+//        if( level != 0 )
+//        {
+//            resize(mvImagePyramid[level-1], mvImagePyramid[level], sz, 0, 0, INTER_LINEAR);
+//
+//            copyMakeBorder(mvImagePyramid[level], temp, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD,
+//                           BORDER_REFLECT_101+BORDER_ISOLATED);            
+//        }
+//        else
+//        {
+//            copyMakeBorder(image, temp, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD, EDGE_THRESHOLD,
+//                           BORDER_REFLECT_101);            
+//        }
+//    }
 
 }
 

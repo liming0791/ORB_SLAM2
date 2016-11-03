@@ -56,11 +56,17 @@ Frame::Frame(const Frame &frame)
     if(!frame.mTcw.empty())
         SetPose(frame.mTcw);
 }
-
+#ifdef USE_GPU
+// Frame for stereo
+Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeStamp, ORBextractorGPU* extractorLeft, ORBextractorGPU* extractorRight, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
+    :mpORBvocabulary(voc),mpORBextractorLeft(extractorLeft),mpORBextractorRight(extractorRight), mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),
+     mpReferenceKF(static_cast<KeyFrame*>(NULL))
+#else
 // Frame for stereo
 Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeStamp, ORBextractor* extractorLeft, ORBextractor* extractorRight, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
     :mpORBvocabulary(voc),mpORBextractorLeft(extractorLeft),mpORBextractorRight(extractorRight), mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),
-     mpReferenceKF(static_cast<KeyFrame*>(NULL))
+     mpReferenceKF(static_cast<KeyFrame*>(NULL)) 
+#endif
 {
     // Frame ID
     mnId=nNextId++;
@@ -87,7 +93,12 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
 
     UndistortKeyPoints();
 
+#ifdef USE_GPU
+	//TODO: when USE_GPU
+	//ComputeStereoMatches();
+#else
     ComputeStereoMatches();
+#endif
 
     mvpMapPoints = vector<MapPoint*>(N,static_cast<MapPoint*>(NULL));    
     mvbOutlier = vector<bool>(N,false);
@@ -116,10 +127,17 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timeSt
     AssignFeaturesToGrid();
 }
 
+#ifdef USE_GPU
+// Frame for RGBD
+Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeStamp, ORBextractorGPU* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
+    :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractorGPU*>(NULL)),
+     mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
+#else
 // Frame for RGBD
 Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
     :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
      mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
+#endif
 {
     // Frame ID
     mnId=nNextId++;
@@ -145,7 +163,6 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
 	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
 	printf("----ExtractORB time: %f ms\n", dua/1000.f);
 // time end
-
 
     N = mvKeys.size();
 
@@ -182,10 +199,17 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     AssignFeaturesToGrid();
 }
 
+#ifdef USE_GPU
+// Frame for monocular
+Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractorGPU* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
+    :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractorGPU*>(NULL)),
+     mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
+#else
 // Frame for monocular
 Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
     :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
      mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
+#endif
 {
     // Frame ID
     mnId=nNextId++;
@@ -258,10 +282,23 @@ void Frame::AssignFeaturesToGrid()
 
 void Frame::ExtractORB(int flag, const cv::Mat &im)
 {
+#ifdef USE_GPU
+	cv::gpu::GpuMat g_im(im), g_keys, g_keysRight, g_descriptors, g_descriptorsRight;
+	if (flag==0) {
+        (*mpORBextractorLeft)(g_im,cv::gpu::GpuMat(),g_keys,g_descriptors);
+		(*mpORBextractorLeft).downloadKeyPoints(g_keys, mvKeys);
+		mDescriptors = cv::Mat(g_descriptors);
+	} else {
+        (*mpORBextractorRight)(g_im,cv::gpu::GpuMat(),g_keysRight,g_descriptorsRight);
+		(*mpORBextractorRight).downloadKeyPoints(g_keysRight, mvKeysRight);
+		mDescriptorsRight = cv::Mat(g_descriptorsRight);
+	}
+#else
     if(flag==0)
         (*mpORBextractorLeft)(im,cv::Mat(),mvKeys,mDescriptors);
     else
         (*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,mDescriptorsRight);
+#endif
 }
 
 void Frame::SetPose(cv::Mat Tcw)
@@ -475,6 +512,9 @@ void Frame::ComputeImageBounds(const cv::Mat &imLeft)
     }
 }
 
+#ifdef USE_GPU
+//TODO: Frame::ComputeStereoMatches(){}
+#else
 void Frame::ComputeStereoMatches()
 {
     mvuRight = vector<float>(N,-1.0f);
@@ -648,7 +688,7 @@ void Frame::ComputeStereoMatches()
         }
     }
 }
-
+#endif
 
 void Frame::ComputeStereoFromRGBD(const cv::Mat &imDepth)
 {

@@ -1,0 +1,661 @@
+Total: 3948 samples
+     405  10.3%  10.3%      405  10.3% inflateBackEnd
+     239   6.1%  16.3%      239   6.1% cv::FAST_t
+     167   4.2%  20.5%      185   4.7% computeOrbDescriptor (inline)
+     165   4.2%  24.7%      165   4.2% inflate
+     127   3.2%  27.9%      127   3.2% __memcpy_sse2_unaligned
+     111   2.8%  30.7%      121   3.1% cv::Mat::release (inline)
+     103   2.6%  33.4%      103   2.6% cv::resizeGeneric_Invoker::operator
+     101   2.6%  35.9%      101   2.6% png_get_uint_16
+      98   2.5%  38.4%       98   2.5% cv::CvtColorLoop_Invoker::operator
+      91   2.3%  40.7%       91   2.3% __GI___pthread_mutex_lock
+      75   1.9%  42.6%       75   1.9% cv::Mat::copyTo
+      72   1.8%  44.4%       72   1.8% DBoW2::FORB::distance
+      70   1.8%  46.2%       70   1.8% std::_Rb_tree_increment@74b50
+      61   1.5%  47.7%       61   1.5% SLL_Pop (inline)
+      60   1.5%  49.3%       60   1.5% gdk_region_spans_intersect_foreach
+      57   1.4%  50.7%       59   1.5% IC_Angle (inline)
+      56   1.4%  52.1%       56   1.4% cv::_InputArray::getMat
+      54   1.4%  53.5%       54   1.4% cv::RowFilter::operator
+      52   1.3%  54.8%       52   1.3% g2o::EdgeStereoSE3ProjectXYZ::linearizeOplus
+      48   1.2%  56.0%       48   1.2% adler32
+      43   1.1%  57.1%       43   1.1% crc32
+      36   0.9%  58.0%       36   0.9% cv::SymmColumnVec_32s8u::operator
+      34   0.9%  58.9%       34   0.9% Eigen::SimplicialCholeskyBase::factorize_preordered
+      34   0.9%  59.8%       34   0.9% png_set_invert_mono
+      30   0.8%  60.5%       30   0.8% __memmove_ssse3_back
+      30   0.8%  61.3%       30   0.8% __pthread_mutex_unlock_usercnt (inline)
+      30   0.8%  62.0%       30   0.8% cv::cornerScore
+      30   0.8%  62.8%       30   0.8% icvCvt_BGR2RGB_8u_C3R
+      29   0.7%  63.5%       40   1.0% Eigen::NoAlias::operator+=
+      28   0.7%  64.2%       28   0.7% _mm_set1_pd (inline)
+      28   0.7%  64.9%       28   0.7% g2o::BaseBinaryEdge::constructQuadraticForm
+      27   0.7%  65.6%       58   1.5% g2o::SparseOptimizer::initializeOptimization@64a70
+      27   0.7%  66.3%       27   0.7% inflateMark
+      26   0.7%  67.0%       82   2.1% ORB_SLAM2::Frame::GetFeaturesInArea
+      25   0.6%  67.6%       25   0.6% g2o::SparseOptimizer::activeRobustChi2
+      24   0.6%  68.2%       24   0.6% cv::Mat::Mat
+      24   0.6%  68.8%       40   1.0% std::_Rb_tree::_M_insert_unique
+      23   0.6%  69.4%       28   0.7% Eigen::internal::product_coeff_impl::run (inline)
+      23   0.6%  70.0%       23   0.6% cv::MatOp_AddEx::makeExpr
+      23   0.6%  70.6%       23   0.6% cv::cvtScale16u32f
+      21   0.5%  71.1%       21   0.5% g2o::EdgeStereoSE3ProjectXYZ::computeError
+      21   0.5%  71.6%       21   0.5% std::vector::size (inline)
+      20   0.5%  72.1%       34   0.9% ORB_SLAM2::Tracking::UpdateLocalPoints
+      18   0.5%  72.6%       18   0.5% _mm_cvtsd_si32 (inline)
+      18   0.5%  73.0%       18   0.5% cv::Mat::create
+      18   0.5%  73.5%       30   0.8% std::_Rb_tree::_M_erase
+      17   0.4%  73.9%       17   0.4% __GI_madvise
+      17   0.4%  74.4%       17   0.4% cv::arithm_op
+      16   0.4%  74.8%       81   2.1% ORB_SLAM2::Tracking::SearchLocalPoints
+      16   0.4%  75.2%       30   0.8% cv::Mat::operator=
+      15   0.4%  75.6%       75   1.9% tc_free
+      14   0.4%  75.9%       14   0.4% _Rb_tree_node (inline)
+      14   0.4%  76.3%       48   1.2% copyCoeff (inline)
+      14   0.4%  76.6%       14   0.4% cv::operator*
+      14   0.4%  77.0%       14   0.4% g2o::EdgeStereoSE3ProjectXYZOnlyPose::cam_project
+      14   0.4%  77.3%       96   2.4% tc_new
+      13   0.3%  77.7%       13   0.3% DBoW2::L1Scoring::score
+      13   0.3%  78.0%       19   0.5% ORB_SLAM2::ORBmatcher::SearchByProjection@a1230
+      13   0.3%  78.3%       13   0.3% cv::_OutputArray::create@96690
+      13   0.3%  78.6%       22   0.6% g2o::BlockSolver::buildStructure
+      12   0.3%  79.0%       70   1.8% DBoW2::TemplatedVocabulary::transform
+      12   0.3%  79.3%       12   0.3% _init@5e738
+      12   0.3%  79.6%       12   0.3% _mm_mul_pd (inline)
+      12   0.3%  79.9%      155   3.9% g2o::BlockSolver::buildSystem
+      12   0.3%  80.2%       12   0.3% std::_Rb_tree::_M_lower_bound (inline)
+      11   0.3%  80.4%       11   0.3% ORB_SLAM2::ORBmatcher::DescriptorDistance
+      11   0.3%  80.7%       11   0.3% __gthread_mutex_unlock (inline)
+      11   0.3%  81.0%       11   0.3% __read_nocancel@eb6a9
+      11   0.3%  81.3%       11   0.3% cv::MatExpr::MatExpr
+      11   0.3%  81.6%       11   0.3% g2o::SparseOptimizer::computeActiveErrors
+      11   0.3%  81.8%       11   0.3% std::_Rb_tree_insert_and_rebalance
+      11   0.3%  82.1%       88   2.2% tcmalloc::ThreadCache::Allocate (inline)
+      10   0.3%  82.4%       10   0.3% g2o::EdgeStereoSE3ProjectXYZ::cam_project
+      10   0.3%  82.6%       10   0.3% g2o::RobustKernelHuber::robustify
+       9   0.2%  82.9%       13   0.3% KeyPoint (inline)
+       9   0.2%  83.1%        9   0.2% _mm_sub_pd (inline)
+       9   0.2%  83.3%        9   0.2% cv::MatOp_GEMM::makeExpr
+       9   0.2%  83.5%        9   0.2% cv::finalizeHdr
+       9   0.2%  83.8%        9   0.2% g2o::EdgeStereoSE3ProjectXYZOnlyPose::linearizeOplus
+       8   0.2%  84.0%        8   0.2% PackedCache::KeyMatch (inline)
+       8   0.2%  84.2%        8   0.2% __GI_memset
+       8   0.2%  84.4%        8   0.2% __libc_writev
+       8   0.2%  84.6%        8   0.2% g2o::EdgeStereoSE3ProjectXYZOnlyPose::computeError
+       8   0.2%  84.8%       23   0.6% tcmalloc::ThreadCache::Deallocate (inline)
+       8   0.2%  85.0%       69   1.7% tcmalloc::ThreadCache::FreeList::Pop (inline)
+       8   0.2%  85.2%       77   2.0% ~Mat (inline)
+       7   0.2%  85.4%        9   0.2% ORB_SLAM2::MapPoint::IsInKeyFrame
+       7   0.2%  85.5%        7   0.2% cv::norm
+       7   0.2%  85.7%        8   0.2% evalTo (inline)
+       6   0.2%  85.9%        6   0.2% Eigen::internal::scalar_multiple_op::operator (inline)
+       6   0.2%  86.0%       14   0.4% ORB_SLAM2::ORBmatcher::SearchByProjection@a7ff0
+       6   0.2%  86.2%        6   0.2% SLL_PopRange (inline)
+       6   0.2%  86.3%        6   0.2% SLL_SetNext (inline)
+       6   0.2%  86.5%        8   0.2% __distance (inline)
+       6   0.2%  86.6%        6   0.2% _mm_add_pd (inline)
+       6   0.2%  86.8%       31   0.8% construct (inline)
+       6   0.2%  86.9%       82   2.1% cpp_alloc (inline)
+       6   0.2%  87.1%        6   0.2% cross (inline)
+       6   0.2%  87.2%        6   0.2% cv::MatOp_AddEx::assign
+       6   0.2%  87.4%        6   0.2% operator<  (inline)
+       6   0.2%  87.5%        6   0.2% std::_Rb_tree::_M_get_insert_unique_pos
+       6   0.2%  87.7%        6   0.2% tcmalloc::CentralFreeList::FetchFromOneSpans
+       5   0.1%  87.8%      110   2.8% ORB_SLAM2::Optimizer::LocalBundleAdjustment
+       5   0.1%  87.9%        5   0.1% Point_ (inline)
+       5   0.1%  88.1%       60   1.5% __gnu_cxx::new_allocator::allocate (inline)
+       5   0.1%  88.2%        5   0.1% __nanosleep_nocancel
+       5   0.1%  88.3%        5   0.1% __write_nocancel
+       5   0.1%  88.4%        5   0.1% _init@43140
+       5   0.1%  88.6%        5   0.1% _mm_loadh_pd (inline)
+       5   0.1%  88.7%        5   0.1% _mm_store_pd (inline)
+       5   0.1%  88.8%        5   0.1% cv::operator+
+       5   0.1%  89.0%        5   0.1% cv::operator-
+       5   0.1%  89.1%        5   0.1% cv::resize
+       5   0.1%  89.2%        6   0.2% g2o::BaseUnaryEdge::linearizeOplus
+       5   0.1%  89.3%        5   0.1% tcmalloc::ThreadCache::SampleAllocation (inline)
+       4   0.1%  89.4%       23   0.6% CoeffBasedProduct (inline)
+       4   0.1%  89.5%        4   0.1% Eigen::internal::scalar_sum_op::operator (inline)
+       4   0.1%  89.6%       10   0.3% SLL_Push (inline)
+       4   0.1%  89.7%        4   0.1% ___printf_fp
+       4   0.1%  89.8%        6   0.2% __copy_m (inline)
+       4   0.1%  89.9%       52   1.3% cv::Mat::~Mat
+       4   0.1%  90.0%        4   0.1% cv::_InputArray::type
+       4   0.1%  90.1%        4   0.1% cv::_OutputArray::create@97300
+       4   0.1%  90.2%       28   0.7% cv::fastMalloc
+       4   0.1%  90.3%        4   0.1% cv::makeOffsets
+       4   0.1%  90.5%       55   1.4% do_free_helper (inline)
+       4   0.1%  90.6%       25   0.6% g2o::HyperGraph::addEdge
+       4   0.1%  90.7%       13   0.3% g2o::SparseBlockMatrix::block
+       4   0.1%  90.8%       53   1.3% packet (inline)
+       4   0.1%  90.9%        9   0.2% std::_Rb_tree::_M_erase (inline)
+       4   0.1%  91.0%        4   0.1% std::_Rb_tree_const_iterator::operator++ (inline)
+       4   0.1%  91.1%       40   1.0% std::_Vector_base::_M_allocate (inline)
+       4   0.1%  91.2%        7   0.2% std::vector::_M_insert_aux
+       3   0.1%  91.2%        3   0.1% MStep (inline)
+       3   0.1%  91.3%        9   0.2% ORB_SLAM2::Frame::isInFrustum
+       3   0.1%  91.4%       16   0.4% ORB_SLAM2::KeyFrame::GetFeaturesInArea
+       3   0.1%  91.5%       22   0.6% ORB_SLAM2::ORBmatcher::Fuse
+       3   0.1%  91.5%       51   1.3% ORB_SLAM2::Optimizer::PoseOptimization
+       3   0.1%  91.6%        3   0.1% __GI___strcmp_ssse3
+       3   0.1%  91.7%        3   0.1% __cxxabiv1::__si_class_type_info::__do_dyncast
+       3   0.1%  91.8%        3   0.1% __gnu_cxx::__normal_iterator::operator++ (inline)
+       3   0.1%  91.8%        3   0.1% __open_nocancel
+       3   0.1%  91.9%        3   0.1% __poll_nocancel
+       3   0.1%  92.0%        3   0.1% __recvmsg_nocancel
+       3   0.1%  92.1%        3   0.1% _init@296e8
+       3   0.1%  92.1%        3   0.1% cv::FilterEngine::proceed
+       3   0.1%  92.2%        3   0.1% cv::Mat::initEmpty (inline)
+       3   0.1%  92.3%        3   0.1% cv::MatOp_GEMM::assign
+       3   0.1%  92.4%        3   0.1% cv::fastAtan2
+       3   0.1%  92.5%        3   0.1% cv::normL2_
+       3   0.1%  92.5%        3   0.1% cv::scaleAdd
+       3   0.1%  92.6%        3   0.1% cvUndistortPoints
+       3   0.1%  92.7%       38   1.0% g2o::BaseUnaryEdge::constructQuadraticForm
+       3   0.1%  92.8%        3   0.1% g2o::EdgeSE3ProjectXYZ::computeError
+       3   0.1%  92.8%        3   0.1% g2o::HyperGraph::clear
+       3   0.1%  92.9%        3   0.1% g2o::OptimizableGraph::Edge::setRobustKernel
+       3   0.1%  93.0%       84   2.1% g2o::SparseOptimizer::initializeOptimization@62ab0
+       3   0.1%  93.1%        3   0.1% png_build_grayscale_palette
+       3   0.1%  93.1%       25   0.6% std::_Rb_tree::_M_clone_node (inline)
+       3   0.1%  93.2%       28   0.7% std::_Rb_tree::_M_copy
+       3   0.1%  93.3%       30   0.8% std::_Vector_base::_M_deallocate (inline)
+       3   0.1%  93.4%        6   0.2% std::unique_lock::lock (inline)
+       3   0.1%  93.4%        3   0.1% std::vector::operator[] (inline)
+       3   0.1%  93.5%        3   0.1% tcmalloc::SizeMap::ClassIndex (inline)
+       3   0.1%  93.6%        3   0.1% tcmalloc::ThreadCache::GetThreadHeap (inline)
+       2   0.1%  93.6%        2   0.1% DBoW2::FeatureVector::addFeature
+       2   0.1%  93.7%        2   0.1% Eigen::SparseMatrix::operator=
+       2   0.1%  93.7%      113   2.9% Eigen::internal::assign_impl::run (inline)
+       2   0.1%  93.8%        4   0.1% Eigen::internal::set_from_triplets
+       2   0.1%  93.8%        2   0.1% MapBase (inline)
+       2   0.1%  93.9%        8   0.2% ORB_SLAM2::ExtractorNode::DivideNode
+       2   0.1%  93.9%        2   0.1% ORB_SLAM2::Frame::PosInGrid
+       2   0.1%  94.0%        5   0.1% ORB_SLAM2::Frame::operator=
+       2   0.1%  94.0%        2   0.1% ORB_SLAM2::KeyFrameDatabase::DetectRelocalizationCandidates
+       2   0.1%  94.1%        4   0.1% ORB_SLAM2::LocalMapping::KeyFrameCulling
+       2   0.1%  94.1%        8   0.2% ORB_SLAM2::MapPoint::UpdateNormalAndDepth
+       2   0.1%  94.2%       99   2.5% ORB_SLAM2::ORBextractor::ComputeKeyPointsOctTree
+       2   0.1%  94.3%        2   0.1% _Vector_impl (inline)
+       2   0.1%  94.3%        2   0.1% __GI___mempcpy
+       2   0.1%  94.4%       32   0.8% __GI___pthread_mutex_unlock
+       2   0.1%  94.4%        2   0.1% __close_nocancel
+       2   0.1%  94.5%        2   0.1% __gnu_cxx::__normal_iterator::operator+= (inline)
+       2   0.1%  94.5%        2   0.1% __read_nocancel@f389
+       2   0.1%  94.6%      187   4.7% computeDescriptors (inline)
+       2   0.1%  94.6%       44   1.1% copyCoeffByOuterInner (inline)
+       2   0.1%  94.7%        2   0.1% cv::Line
+       2   0.1%  94.7%        2   0.1% cv::Mat::convertTo
+       2   0.1%  94.8%        9   0.2% cv::Mat::operator= (inline)
+       2   0.1%  94.8%        2   0.1% cv::MatOp_GEMM::add
+       2   0.1%  94.9%        2   0.1% cv::MatOp_Initializer::makeExpr
+       2   0.1%  94.9%        2   0.1% cv::NAryMatIterator::init
+       2   0.1%  95.0%        2   0.1% cv::_InputArray::_InputArray
+       2   0.1%  95.0%        2   0.1% cv::_InputArray::kind
+       2   0.1%  95.1%        2   0.1% cv::_OutputArray::_OutputArray
+       2   0.1%  95.1%        2   0.1% cv::copyMakeBorder
+       2   0.1%  95.2%        2   0.1% cv::fastFree
+       2   0.1%  95.2%        2   0.1% cv::gemm
+       2   0.1%  95.3%        2   0.1% cv::sub32f
+       2   0.1%  95.3%        2   0.1% cv::vBinOp32f
+       2   0.1%  95.4%       30   0.8% do_malloc_or_cpp_alloc (inline)
+       2   0.1%  95.4%        7   0.2% emplace_back (inline)
+       2   0.1%  95.5%        2   0.1% g2o::EdgeSE3ProjectXYZ::linearizeOplus
+       2   0.1%  95.5%        2   0.1% g2o::EdgeSE3ProjectXYZOnlyPose::linearizeOplus
+       2   0.1%  95.6%        2   0.1% g2o::HyperGraph::vertex
+       2   0.1%  95.6%        2   0.1% g2o::OptimizableGraph::Edge::~Edge
+       2   0.1%  95.7%        2   0.1% g2o::OptimizableGraph::addEdge
+       2   0.1%  95.7%        2   0.1% g2o::OptimizationAlgorithmLevenberg::computeLambdaInit
+       2   0.1%  95.8%        2   0.1% g2o::SE3Quat::exp
+       2   0.1%  95.8%        2   0.1% g2o::SE3Quat::map
+       2   0.1%  95.9%        3   0.1% g2o::VertexSE3Expmap::oplusImpl
+       2   0.1%  95.9%        2   0.1% g2o::project2d
+       2   0.1%  96.0%        4   0.1% lower_bound (inline)
+       2   0.1%  96.0%       14   0.4% pmul (inline)
+       2   0.1%  96.1%        2   0.1% std::_List_const_iterator::operator++ (inline)
+       2   0.1%  96.1%        2   0.1% std::__introsort_loop [clone .isra.240]
+       2   0.1%  96.2%        2   0.1% std::__once_callable
+       2   0.1%  96.2%        3   0.1% std::mutex::lock (inline)
+       2   0.1%  96.3%        3   0.1% std::vector::_M_fill_insert
+       2   0.1%  96.3%       17   0.4% std::vector::push_back (inline)
+       2   0.1%  96.4%        3   0.1% std::vector::vector
+       2   0.1%  96.4%       32   0.8% tc_malloc
+       2   0.1%  96.5%        2   0.1% tcmalloc::CentralFreeList::Populate
+       2   0.1%  96.5%        2   0.1% tcmalloc::PageHeap::SearchFreeAndLargeLists
+       2   0.1%  96.6%        2   0.1% tcmalloc::SizeMap::class_to_size (inline)
+       1   0.0%  96.6%        1   0.0% 0x00007f1068df6ef8
+       1   0.0%  96.6%        1   0.0% 0x00007f1068e17107
+       1   0.0%  96.7%        1   0.0% 0x00007f1068e35653
+       1   0.0%  96.7%        1   0.0% 0x00007f1068e35662
+       1   0.0%  96.7%        1   0.0% 0x00007f1068e35669
+       1   0.0%  96.7%        1   0.0% 0x00007f1068e356a8
+       1   0.0%  96.8%        1   0.0% 0x00007f1068e35770
+       1   0.0%  96.8%        1   0.0% 0x00007f1068e4cda3
+       1   0.0%  96.8%        1   0.0% 0x00007f1068e64260
+       1   0.0%  96.8%        1   0.0% 0x00007f1068e64849
+       1   0.0%  96.9%        1   0.0% 0x00007ffe3b77e900
+       1   0.0%  96.9%        3   0.1% DBoW2::TemplatedVocabulary::loadFromBinaryFile
+       1   0.0%  96.9%        1   0.0% Eigen::PlainObjectBase::coeffRef (inline)
+       1   0.0%  96.9%        1   0.0% Eigen::internal::assign_DefaultTraversal_CompleteUnrolling::run
+       1   0.0%  97.0%       25   0.6% Eigen::internal::assign_DefaultTraversal_InnerUnrolling::run (inline)
+       1   0.0%  97.0%        2   0.1% Eigen::internal::ldlt_inplace::unblocked
+       1   0.0%  97.0%        1   0.0% Eigen::internal::redux_impl::run (inline)
+       1   0.0%  97.0%        1   0.0% Eigen::internal::sparse_solve_triangular_selector::run (inline)
+       1   0.0%  97.1%        5   0.1% ExtractorNode (inline)
+       1   0.0%  97.1%        2   0.1% MallocHook::InvokeDeleteHook (inline)
+       1   0.0%  97.1%        7   0.2% Mat (inline)
+       1   0.0%  97.1%        1   0.0% NoBarrier_AtomicExchange (inline)
+       1   0.0%  97.2%        1   0.0% NoBarrier_Load (inline)
+       1   0.0%  97.2%        1   0.0% ORB_SLAM2::Converter::toCvMat
+       1   0.0%  97.2%        1   0.0% ORB_SLAM2::Frame::ComputeStereoFromRGBD
+       1   0.0%  97.2%        2   0.1% ORB_SLAM2::Frame::UnprojectStereo
+       1   0.0%  97.3%        1   0.0% ORB_SLAM2::FrameDrawer::DrawFrame
+       1   0.0%  97.3%        1   0.0% ORB_SLAM2::KeyFrameDatabase::DetectLoopCandidates
+       1   0.0%  97.3%      192   4.9% ORB_SLAM2::LocalMapping::Run
+       1   0.0%  97.3%       74   1.9% ORB_SLAM2::MapDrawer::DrawMapPoints
+       1   0.0%  97.4%        1   0.0% ORB_SLAM2::MapPoint::GetMinDistanceInvariance
+       1   0.0%  97.4%        2   0.1% ORB_SLAM2::MapPoint::GetWorldPos
+       1   0.0%  97.4%        6   0.2% ORB_SLAM2::MapPoint::MapPoint
+       1   0.0%  97.4%       10   0.3% ORB_SLAM2::MapPoint::isBad
+       1   0.0%  97.5%       29   0.7% ORB_SLAM2::ORBextractor::DistributeOctTree
+       1   0.0%  97.5%        1   0.0% ORB_SLAM2::Tracking::CheckReplacedInLastFrame
+       1   0.0%  97.5%      119   3.0% ORB_SLAM2::Tracking::Track
+       1   0.0%  97.5%       21   0.5% ORB_SLAM2::Tracking::UpdateLastFrame
+       1   0.0%  97.6%        1   0.0% XCheckWindowEvent
+       1   0.0%  97.6%        1   0.0% XFlush
+       1   0.0%  97.6%        8   0.2% _Construct (inline)
+       1   0.0%  97.6%        2   0.1% _Destroy (inline)
+       1   0.0%  97.7%        1   0.0% _IO_acquire_lock_fct
+       1   0.0%  97.7%        6   0.2% _IO_vfprintf_internal
+       1   0.0%  97.7%        1   0.0% _Rb_tree_impl (inline)
+       1   0.0%  97.7%       33   0.8% _Vector_base (inline)
+       1   0.0%  97.8%        1   0.0% _XFreeX11XCBStructure
+       1   0.0%  97.8%        1   0.0% _XReply
+       1   0.0%  97.8%        1   0.0% _XSend
+       1   0.0%  97.8%        1   0.0% __GI___pthread_getspecific
+       1   0.0%  97.9%        1   0.0% __gthread_mutex_lock (inline)
+       1   0.0%  97.9%        1   0.0% __ieee754_logf
+       1   0.0%  97.9%        1   0.0% __libc_enable_asynccancel
+       1   0.0%  97.9%        1   0.0% __mpn_divrem
+       1   0.0%  98.0%        1   0.0% __munmap
+       1   0.0%  98.0%        1   0.0% __normal_iterator (inline)
+       1   0.0%  98.0%        1   0.0% __sin_avx
+       1   0.0%  98.0%        1   0.0% __sincosf
+       1   0.0%  98.1%        4   0.1% __uninit_default_n (inline)
+       1   0.0%  98.1%       36   0.9% _init@402918
+       1   0.0%  98.1%        1   0.0% at (inline)
+       1   0.0%  98.2%        1   0.0% cairo_pattern_get_extend
+       1   0.0%  98.2%        1   0.0% cofactor_3x3 (inline)
+       1   0.0%  98.2%        1   0.0% cv::Mat::deallocate
+       1   0.0%  98.2%        1   0.0% cv::Mat::dot
+       1   0.0%  98.3%        1   0.0% cv::Mat::step1 (inline)
+       1   0.0%  98.3%        1   0.0% cv::MatOp::add
+       1   0.0%  98.3%        1   0.0% cv::MatOp_T::makeExpr
+       1   0.0%  98.3%        1   0.0% cv::NAryMatIterator::NAryMatIterator
+       1   0.0%  98.4%        1   0.0% cv::_InputArray::empty
+       1   0.0%  98.4%        1   0.0% cv::_OutputArray::fixedType
+       1   0.0%  98.4%        1   0.0% cv::borderInterpolate
+       1   0.0%  98.4%        1   0.0% cv::cvtColor
+       1   0.0%  98.5%        1   0.0% cv::cvtScale32f
+       1   0.0%  98.5%        1   0.0% cv::getConvertFunc
+       1   0.0%  98.5%        1   0.0% cv::noArray
+       1   0.0%  98.5%        1   0.0% cv::operator/
+       1   0.0%  98.6%        1   0.0% cv::rectangle
+       1   0.0%  98.6%        1   0.0% cv::resizeGeneric_
+       1   0.0%  98.6%        1   0.0% cv::scalarToRawData
+       1   0.0%  98.6%        1   0.0% cv::transpose_32s
+       1   0.0%  98.7%        1   0.0% cvImageWidgetSetImage
+       1   0.0%  98.7%      100   2.5% do_malloc_small (inline)
+       1   0.0%  98.7%        1   0.0% g2o::BaseBinaryEdge::linearizeOplus
+       1   0.0%  98.7%        9   0.2% g2o::BaseEdge::chi2
+       1   0.0%  98.8%        1   0.0% g2o::BaseVertex::copyB
+       1   0.0%  98.8%        1   0.0% g2o::BaseVertex::discardTop
+       1   0.0%  98.8%      108   2.7% g2o::BlockSolver::solve
+       1   0.0%  98.8%        1   0.0% g2o::EdgeSE3ProjectXYZ::cam_project
+       1   0.0%  98.9%        1   0.0% g2o::HyperGraph::Edge::vertex (inline)
+       1   0.0%  98.9%        1   0.0% g2o::HyperGraph::Vertex::~Vertex
+       1   0.0%  98.9%        1   0.0% g2o::JacobianWorkspace::updateSize
+       1   0.0%  98.9%        1   0.0% g2o::OptimizableGraph::Edge::setLevel (inline)
+       1   0.0%  99.0%        1   0.0% g2o::RobustKernelHuber::setDelta
+       1   0.0%  99.0%        1   0.0% g2o::SparseBlockMatrixCCS::rowBaseOfBlock (inline)
+       1   0.0%  99.0%        3   0.1% g2o::SparseOptimizer::sortVectorContainers
+       1   0.0%  99.0%        1   0.0% g_list_sort_with_data
+       1   0.0%  99.1%        1   0.0% g_slice_alloc
+       1   0.0%  99.1%        1   0.0% g_type_instance_get_private
+       1   0.0%  99.1%        1   0.0% g_unix_fd_add
+       1   0.0%  99.1%        1   0.0% gdk_draw_image
+       1   0.0%  99.2%        1   0.0% gdk_drawable_get_type
+       1   0.0%  99.2%        1   0.0% gdk_image_get_pixels
+       1   0.0%  99.2%        1   0.0% operator& (inline)
+       1   0.0%  99.2%       33   0.8% operator+= (inline)
+       1   0.0%  99.3%       71   1.8% operator= (inline)
+       1   0.0%  99.3%        1   0.0% pangolin::VarValue::Get
+       1   0.0%  99.3%        1   0.0% permute_symm_to_fullsymm
+       1   0.0%  99.3%        1   0.0% png_create_read_struct_2
+       1   0.0%  99.4%        1   0.0% png_read_row
+       1   0.0%  99.4%        1   0.0% round (inline)
+       1   0.0%  99.4%        1   0.0% std::_Bit_reference::operator= (inline)
+       1   0.0%  99.4%        1   0.0% std::_Rb_tree::clear (inline)
+       1   0.0%  99.5%        1   0.0% std::_Rb_tree::end (inline)
+       1   0.0%  99.5%       11   0.3% std::_Rb_tree::find (inline)
+       1   0.0%  99.5%        1   0.0% std::_Rb_tree_increment@74b00
+       1   0.0%  99.5%        1   0.0% std::_Rb_tree_rebalance_for_erase
+       1   0.0%  99.6%        1   0.0% std::basic_streambuf::xsputn
+       1   0.0%  99.6%        1   0.0% std::basic_string::basic_string
+       1   0.0%  99.6%        1   0.0% std::pair::operator= (inline)
+       1   0.0%  99.6%        1   0.0% std::string::swap
+       1   0.0%  99.7%        1   0.0% std::strstream::str
+       1   0.0%  99.7%        1   0.0% std::tr1::_Hashtable::_M_find_node (inline)
+       1   0.0%  99.7%        2   0.1% std::tr1::_Hashtable::_M_insert_bucket
+       1   0.0%  99.7%        2   0.1% std::tr1::_Hashtable::find (inline)
+       1   0.0%  99.8%       12   0.3% std::unique_lock::unlock (inline)
+       1   0.0%  99.8%       18   0.5% tcmalloc::PageHeap::MergeIntoFreeList
+       1   0.0%  99.8%        4   0.1% tcmalloc::SizeMap::SizeClass (inline)
+       1   0.0%  99.8%        1   0.0% tcmalloc::Static::pageheap (inline)
+       1   0.0%  99.9%        1   0.0% tcmalloc::ThreadCache::GetCacheWhichMustBePresent (inline)
+       1   0.0%  99.9%        1   0.0% tcmalloc::ThreadCache::MinSizeForSlowPath (inline)
+       1   0.0%  99.9%        1   0.0% upper_bound (inline)
+       1   0.0%  99.9%        6   0.2% writePacket (inline)
+       1   0.0% 100.0%        1   0.0% xcb_connect_to_fd
+       1   0.0% 100.0%        8   0.2% ~MatExpr (inline)
+       0   0.0% 100.0%        1   0.0% 0x0000000002ad72ff
+       0   0.0% 100.0%        1   0.0% 0x0000000002af08ff
+       0   0.0% 100.0%      325   8.2% 0x000000000311c1bf
+       0   0.0% 100.0%        1   0.0% 0x000000000312912f
+       0   0.0% 100.0%        1   0.0% 0x0000000014002014
+       0   0.0% 100.0%        1   0.0% 0x000000001889d33f
+       0   0.0% 100.0%        1   0.0% 0x000000001946ffff
+       0   0.0% 100.0%        1   0.0% 0x00000000197edfff
+       0   0.0% 100.0%        1   0.0% 0x0000000019c3e09f
+       0   0.0% 100.0%        1   0.0% 0x000000001a1c17ff
+       0   0.0% 100.0%       13   0.3% 0x00000000ffffffff
+       0   0.0% 100.0%       25   0.6% 0x0000000100000002
+       0   0.0% 100.0%        1   0.0% 0x000000010000ffff
+       0   0.0% 100.0%        2   0.1% 0x00000002ffffffff
+       0   0.0% 100.0%       18   0.5% 0x0000000300000002
+       0   0.0% 100.0%        1   0.0% 0x0000000d0000ffff
+       0   0.0% 100.0%        1   0.0% 0x0000001e0000ffff
+       0   0.0% 100.0%        1   0.0% 0x00000024212effff
+       0   0.0% 100.0%        1   0.0% 0x0000002a0000ffff
+       0   0.0% 100.0%        1   0.0% 0x000000350000ffff
+       0   0.0% 100.0%        1   0.0% 0x000001120000021f
+       0   0.0% 100.0%        2   0.1% 0x000001f2000003df
+       0   0.0% 100.0%        1   0.0% 0x0000028000000025
+       0   0.0% 100.0%       16   0.4% 0x00000280000001df
+       0   0.0% 100.0%        1   0.0% 0x000002a90000054d
+       0   0.0% 100.0%        1   0.0% 0x0000161affffffff
+       0   0.0% 100.0%        1   0.0% 0x00001affffffffff
+       0   0.0% 100.0%        9   0.2% 0x00007f0fffffffff
+       0   0.0% 100.0%       13   0.3% 0x00007f100000ffff
+       0   0.0% 100.0%        1   0.0% 0x00007f1056afc55f
+       0   0.0% 100.0%       15   0.4% 0x00007ffdffffffff
+       0   0.0% 100.0%        6   0.2% 0x00007ffe0000ffff
+       0   0.0% 100.0%        1   0.0% 0x0001f4000000001f
+       0   0.0% 100.0%        1   0.0% 0x13ffffffffffffff
+       0   0.0% 100.0%        1   0.0% 0x3fa75d941fffffff
+       0   0.0% 100.0%        1   0.0% 0x40515703cf30612e
+       0   0.0% 100.0%        1   0.0% 0x4054234a69d01285
+       0   0.0% 100.0%        1   0.0% 0x40587991f510b68c
+       0   0.0% 100.0%       10   0.3% 0x40b677a8ffffffff
+       0   0.0% 100.0%        1   0.0% 0x552e54455f6d6108
+       0   0.0% 100.0%        1   0.0% BaseUnaryEdge (inline)
+       0   0.0% 100.0%        6   0.2% CwiseBinaryOp (inline)
+       0   0.0% 100.0%       28   0.7% Eigen::CoeffBasedProduct::coeff (inline)
+       0   0.0% 100.0%        5   0.1% Eigen::CwiseBinaryOpImpl::coeff (inline)
+       0   0.0% 100.0%        6   0.2% Eigen::CwiseUnaryOpImpl::coeff (inline)
+       0   0.0% 100.0%        1   0.0% Eigen::DenseBase::setConstant (inline)
+       0   0.0% 100.0%        1   0.0% Eigen::DenseBase::setZero (inline)
+       0   0.0% 100.0%        3   0.1% Eigen::DenseBase::sum (inline)
+       0   0.0% 100.0%        2   0.1% Eigen::DenseCoeffsBase::coeff (inline)
+       0   0.0% 100.0%        2   0.1% Eigen::DenseCoeffsBase::coeffByOuterInner (inline)
+       0   0.0% 100.0%        2   0.1% Eigen::LDLT::compute
+       0   0.0% 100.0%       42   1.1% Eigen::Matrix const& (inline)
+       0   0.0% 100.0%        3   0.1% Eigen::PlainObjectBase::operator new (inline)
+       0   0.0% 100.0%       10   0.3% Eigen::QuaternionBase::_transformVector
+       0   0.0% 100.0%        1   0.0% Eigen::QuaternionBase::_transformVector (inline)
+       0   0.0% 100.0%       70   1.8% Eigen::SelfCwiseBinaryOp::operator= (inline)
+       0   0.0% 100.0%        1   0.0% Eigen::SimplicialCholeskyBase::_solve
+       0   0.0% 100.0%        2   0.1% Eigen::SimplicialCholeskyBase::analyzePattern
+       0   0.0% 100.0%        2   0.1% Eigen::SimplicialCholeskyBase::ordering
+       0   0.0% 100.0%        2   0.1% Eigen::SimplicialLDLT::analyzePattern (inline)
+       0   0.0% 100.0%       34   0.9% Eigen::SimplicialLDLT::factorize (inline)
+       0   0.0% 100.0%        1   0.0% Eigen::internal::aligned_malloc
+       0   0.0% 100.0%       19   0.5% Eigen::internal::assign_DefaultTraversal_CompleteUnrolling::run (inline)
+       0   0.0% 100.0%       10   0.3% Eigen::internal::assign_DefaultTraversal_InnerUnrolling::run
+       0   0.0% 100.0%        6   0.2% Eigen::internal::assign_LinearTraversal_CompleteUnrolling::run (inline)
+       0   0.0% 100.0%        1   0.0% Eigen::internal::assign_innervec_CompleteUnrolling::run (inline)
+       0   0.0% 100.0%       50   1.3% Eigen::internal::assign_innervec_InnerUnrolling::run (inline)
+       0   0.0% 100.0%       71   1.8% Eigen::internal::assign_selector::run (inline)
+       0   0.0% 100.0%        1   0.0% Eigen::internal::compute_inverse::run
+       0   0.0% 100.0%        2   0.1% Eigen::internal::conj_helper::pmul (inline)
+       0   0.0% 100.0%        8   0.2% Eigen::internal::dot_nocheck::run (inline)
+       0   0.0% 100.0%       49   1.2% Eigen::internal::product_packet_impl::run (inline)
+       0   0.0% 100.0%        2   0.1% Eigen::internal::redux_novec_unroller::run (inline)
+       0   0.0% 100.0%        1   0.0% Eigen::internal::rotation_base_generic_product_selector::run (inline)
+       0   0.0% 100.0%        2   0.1% Eigen::internal::scalar_conj_product_op::operator (inline)
+       0   0.0% 100.0%        1   0.0% GeneralProduct (inline)
+       0   0.0% 100.0%        2   0.1% Map (inline)
+       0   0.0% 100.0%        1   0.0% Mat_ (inline)
+       0   0.0% 100.0%       11   0.3% Matrix (inline)
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::Converter::toQuaternion
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::Frame::AssignFeaturesToGrid
+       0   0.0% 100.0%       45   1.1% ORB_SLAM2::Frame::ComputeBoW
+       0   0.0% 100.0%      323   8.2% ORB_SLAM2::Frame::ExtractORB
+       0   0.0% 100.0%        9   0.2% ORB_SLAM2::Frame::Frame
+       0   0.0% 100.0%        2   0.1% ORB_SLAM2::Frame::~Frame
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::KeyFrame::AddConnection
+       0   0.0% 100.0%       25   0.6% ORB_SLAM2::KeyFrame::ComputeBoW
+       0   0.0% 100.0%        4   0.1% ORB_SLAM2::KeyFrame::GetCovisiblesByWeight
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::KeyFrame::GetLoopEdges
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::KeyFrame::GetMapPoint
+       0   0.0% 100.0%        4   0.1% ORB_SLAM2::KeyFrame::TrackedMapPoints
+       0   0.0% 100.0%        4   0.1% ORB_SLAM2::KeyFrame::UpdateConnections
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::KeyFrame::save
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::LocalMapping::CreateNewMapPoints
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::LocalMapping::MapPointCulling
+       0   0.0% 100.0%       32   0.8% ORB_SLAM2::LocalMapping::ProcessNewKeyFrame
+       0   0.0% 100.0%       38   1.0% ORB_SLAM2::LocalMapping::SearchInNeighbors
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::LoopClosing::DetectLoop
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::LoopClosing::Run
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::Map::GetAllMapPoints
+       0   0.0% 100.0%        7   0.2% ORB_SLAM2::MapDrawer::DrawKeyFrames
+       0   0.0% 100.0%        4   0.1% ORB_SLAM2::MapPoint::ComputeDistinctiveDescriptors
+       0   0.0% 100.0%        2   0.1% ORB_SLAM2::MapPoint::GetDescriptor
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::MapPoint::GetObservations
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::MapPoint::IncreaseVisible
+       0   0.0% 100.0%        4   0.1% ORB_SLAM2::MapPoint::Observations
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::MapPoint::Replace
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::ORBextractor::ComputePyramid
+       0   0.0% 100.0%      319   8.1% ORB_SLAM2::ORBextractor::operator
+       0   0.0% 100.0%        4   0.1% ORB_SLAM2::ORBmatcher::SearchByBoW
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::ORBmatcher::SearchForTriangulation
+       0   0.0% 100.0%        5   0.1% ORB_SLAM2::System::System
+       0   0.0% 100.0%      145   3.7% ORB_SLAM2::System::TrackRGBD
+       0   0.0% 100.0%        2   0.1% ORB_SLAM2::Tracking::CreateNewKeyFrame
+       0   0.0% 100.0%      145   3.7% ORB_SLAM2::Tracking::GrabImageRGBD
+       0   0.0% 100.0%        4   0.1% ORB_SLAM2::Tracking::NeedNewKeyFrame
+       0   0.0% 100.0%       53   1.3% ORB_SLAM2::Tracking::Relocalization
+       0   0.0% 100.0%        1   0.0% ORB_SLAM2::Tracking::StereoInitialization
+       0   0.0% 100.0%       83   2.1% ORB_SLAM2::Tracking::TrackLocalMap
+       0   0.0% 100.0%        2   0.1% ORB_SLAM2::Tracking::TrackReferenceKeyFrame
+       0   0.0% 100.0%       52   1.3% ORB_SLAM2::Tracking::TrackWithMotionModel
+       0   0.0% 100.0%        3   0.1% ORB_SLAM2::Tracking::UpdateLocalKeyFrames
+       0   0.0% 100.0%        6   0.2% ORB_SLAM2::Tracking::UpdateLocalMap
+       0   0.0% 100.0%       98   2.5% ORB_SLAM2::Viewer::Run
+       0   0.0% 100.0%        8   0.2% PackedCache::GetOrDefault (inline)
+       0   0.0% 100.0%        1   0.0% Release_AtomicExchange (inline)
+       0   0.0% 100.0%        1   0.0% SparseBlockMatrix (inline)
+       0   0.0% 100.0%        1   0.0% SpinLock::Unlock (inline)
+       0   0.0% 100.0%        4   0.1% _List_node (inline)
+       0   0.0% 100.0%        5   0.1% _M_allocate_and_copy (inline)
+       0   0.0% 100.0%       42   1.1% _M_create_node (inline)
+       0   0.0% 100.0%        2   0.1% _M_initialize_dispatch (inline)
+       0   0.0% 100.0%       10   0.3% _M_insert (inline)
+       0   0.0% 100.0%       10   0.3% _M_insert_ (inline)
+       0   0.0% 100.0%       14   0.4% _M_insert_unique (inline)
+       0   0.0% 100.0%       14   0.4% _M_insert_unique_ (inline)
+       0   0.0% 100.0%        2   0.1% _M_range_initialize (inline)
+       0   0.0% 100.0%        1   0.0% _Rb_tree (inline)
+       0   0.0% 100.0%       27   0.7% _S_construct (inline)
+       0   0.0% 100.0%        6   0.2% ___printf_chk
+       0   0.0% 100.0%        2   0.1% __advance (inline)
+       0   0.0% 100.0%        6   0.2% __copy_move_a (inline)
+       0   0.0% 100.0%        6   0.2% __copy_move_a2 (inline)
+       0   0.0% 100.0%        2   0.1% __destroy (inline)
+       0   0.0% 100.0%        2   0.1% __final_insertion_sort (inline)
+       0   0.0% 100.0%        3   0.1% __fopen_internal
+       0   0.0% 100.0%       35   0.9% __gnu_cxx::new_allocator::deallocate (inline)
+       0   0.0% 100.0%      156   4.0% __libc_start_main
+       0   0.0% 100.0%        1   0.0% __nptl_deallocate_tsd
+       0   0.0% 100.0%        2   0.1% __unguarded_insertion_sort (inline)
+       0   0.0% 100.0%        4   0.1% __unguarded_linear_insert (inline)
+       0   0.0% 100.0%        3   0.1% __unguarded_partition (inline)
+       0   0.0% 100.0%        3   0.1% __unguarded_partition_pivot (inline)
+       0   0.0% 100.0%       10   0.3% __uninit_copy (inline)
+       0   0.0% 100.0%       10   0.3% __uninitialized_copy_a (inline)
+       0   0.0% 100.0%        4   0.1% __uninitialized_default_n (inline)
+       0   0.0% 100.0%        4   0.1% __uninitialized_default_n_a (inline)
+       0   0.0% 100.0%        2   0.1% __uninitialized_move_if_noexcept_a (inline)
+       0   0.0% 100.0%        1   0.0% _set (inline)
+       0   0.0% 100.0%       12   0.3% _set_noalias (inline)
+       0   0.0% 100.0%        1   0.0% _set_selector (inline)
+       0   0.0% 100.0%        2   0.1% advance (inline)
+       0   0.0% 100.0%        7   0.2% aligned_malloc (inline)
+       0   0.0% 100.0%       11   0.3% atxpy (inline)
+       0   0.0% 100.0%        1   0.0% base::internal::HookList::empty (inline)
+       0   0.0% 100.0%        6   0.2% binaryExpr (inline)
+       0   0.0% 100.0%        1   0.0% boost::archive::detail::oserializer::save_object_data
+       0   0.0% 100.0%        1   0.0% boost::serialization::detail::member_saver::invoke (inline)
+       0   0.0% 100.0%       59   1.5% computeOrientation
+       0   0.0% 100.0%        7   0.2% conditional_aligned_malloc (inline)
+       0   0.0% 100.0%        6   0.2% copy (inline)
+       0   0.0% 100.0%       70   1.8% copyPacket (inline)
+       0   0.0% 100.0%       70   1.8% copyPacketByOuterInner (inline)
+       0   0.0% 100.0%        1   0.0% cv::GaussianBlur
+       0   0.0% 100.0%        3   0.1% cv::Mat::clone (inline)
+       0   0.0% 100.0%       43   1.1% cv::MatExpr::~MatExpr
+       0   0.0% 100.0%        1   0.0% cv::Mat_ (inline)
+       0   0.0% 100.0%        1   0.0% cv::Mat_::operator=
+       0   0.0% 100.0%       18   0.5% cvRound (inline)
+       0   0.0% 100.0%        1   0.0% destroy (inline)
+       0   0.0% 100.0%        8   0.2% distance (inline)
+       0   0.0% 100.0%       58   1.5% do_free (inline)
+       0   0.0% 100.0%       58   1.5% do_free_with_callback (inline)
+       0   0.0% 100.0%      104   2.6% do_malloc (inline)
+       0   0.0% 100.0%        2   0.1% do_malloc_pages
+       0   0.0% 100.0%        8   0.2% dot (inline)
+       0   0.0% 100.0%       34   0.9% factorize (inline)
+       0   0.0% 100.0%        1   0.0% g2o::BlockSolver::deallocate
+       0   0.0% 100.0%        1   0.0% g2o::BlockSolver::resize
+       0   0.0% 100.0%        4   0.1% g2o::BlockSolver::restoreDiagonal
+       0   0.0% 100.0%        1   0.0% g2o::BlockSolver::setLambda
+       0   0.0% 100.0%        1   0.0% g2o::EdgeSE3ProjectXYZ::operator new (inline)
+       0   0.0% 100.0%        3   0.1% g2o::EdgeSE3ProjectXYZOnlyPose::operator new (inline)
+       0   0.0% 100.0%        2   0.1% g2o::EdgeStereoSE3ProjectXYZ::EdgeStereoSE3ProjectXYZ
+       0   0.0% 100.0%        1   0.0% g2o::EdgeStereoSE3ProjectXYZ::isDepthPositive
+       0   0.0% 100.0%        1   0.0% g2o::JacobianWorkspace::allocate
+       0   0.0% 100.0%        2   0.1% g2o::LinearSolverDense::solve
+       0   0.0% 100.0%        2   0.1% g2o::LinearSolverEigen::computeSymbolicDecomposition
+       0   0.0% 100.0%        6   0.2% g2o::LinearSolverEigen::fillSparseMatrix (inline)
+       0   0.0% 100.0%       43   1.1% g2o::LinearSolverEigen::solve
+       0   0.0% 100.0%      141   3.6% g2o::OptimizationAlgorithmLevenberg::solve
+       0   0.0% 100.0%        1   0.0% g2o::SE3Quat::map (inline)
+       0   0.0% 100.0%        3   0.1% g2o::SparseBlockMatrix::clear
+       0   0.0% 100.0%        1   0.0% g2o::SparseBlockMatrix::clear (inline)
+       0   0.0% 100.0%        1   0.0% g2o::SparseBlockMatrix::fillSparseBlockMatrixCCS
+       0   0.0% 100.0%       11   0.3% g2o::SparseBlockMatrixCCS::rightMultiply
+       0   0.0% 100.0%        2   0.1% g2o::SparseBlockMatrixHashMap::addBlock (inline)
+       0   0.0% 100.0%        4   0.1% g2o::SparseOptimizer::update
+       0   0.0% 100.0%        1   0.0% g2o::VertexSBAPointXYZ::~VertexSBAPointXYZ
+       0   0.0% 100.0%        3   0.1% insert (inline)
+       0   0.0% 100.0%      113   2.9% lazyAssign (inline)
+       0   0.0% 100.0%      155   3.9% main
+       0   0.0% 100.0%        1   0.0% map (inline)
+       0   0.0% 100.0%        1   0.0% member_save (inline)
+       0   0.0% 100.0%       25   0.6% operator* (inline)
+       0   0.0% 100.0%       38   1.0% operator-= (inline)
+       0   0.0% 100.0%       11   0.3% packetOp (inline)
+       0   0.0% 100.0%        6   0.2% padd (inline)
+       0   0.0% 100.0%        1   0.0% pangolin::Var::operator bool const& (inline)
+       0   0.0% 100.0%        5   0.1% ploadt (inline)
+       0   0.0% 100.0%        5   0.1% ploadu (inline)
+       0   0.0% 100.0%        9   0.2% pmadd (inline)
+       0   0.0% 100.0%       28   0.7% pset1 (inline)
+       0   0.0% 100.0%        5   0.1% pstore (inline)
+       0   0.0% 100.0%        5   0.1% pstoret (inline)
+       0   0.0% 100.0%        9   0.2% psub (inline)
+       0   0.0% 100.0%        3   0.1% redux (inline)
+       0   0.0% 100.0%        1   0.0% serialize (inline)
+       0   0.0% 100.0%        1   0.0% serialize_adl (inline)
+       0   0.0% 100.0%       14   0.4% set (inline)
+       0   0.0% 100.0%        4   0.1% setFromTriplets (inline)
+       0   0.0% 100.0%        1   0.0% solveInPlace (inline)
+       0   0.0% 100.0%        6   0.2% sort (inline)
+       0   0.0% 100.0%        1   0.0% split_member (inline)
+       0   0.0% 100.0%        2   0.1% std::_List_base::_M_clear (inline)
+       0   0.0% 100.0%        6   0.2% std::_List_base::_M_get_node (inline)
+       0   0.0% 100.0%        2   0.1% std::_List_base::_M_put_node (inline)
+       0   0.0% 100.0%        6   0.2% std::_Rb_tree::_M_destroy_node (inline)
+       0   0.0% 100.0%        7   0.2% std::_Rb_tree::_M_get_insert_hint_unique_pos (inline)
+       0   0.0% 100.0%       18   0.5% std::_Rb_tree::_M_get_node (inline)
+       0   0.0% 100.0%        1   0.0% std::_Rb_tree::_M_insert_
+       0   0.0% 100.0%        6   0.2% std::_Rb_tree::_M_put_node (inline)
+       0   0.0% 100.0%        2   0.1% std::_Rb_tree::lower_bound (inline)
+       0   0.0% 100.0%        1   0.0% std::_Rb_tree::operator= (inline)
+       0   0.0% 100.0%       30   0.8% std::_Vector_base::_M_create_storage (inline)
+       0   0.0% 100.0%        2   0.1% std::__insertion_sort
+       0   0.0% 100.0%        3   0.1% std::__introsort_loop
+       0   0.0% 100.0%        1   0.0% std::__move_median_to_first
+       0   0.0% 100.0%        1   0.0% std::basic_stringbuf@@GLIBCXX_3.4
+       0   0.0% 100.0%        1   0.0% std::list::_M_erase (inline)
+       0   0.0% 100.0%        1   0.0% std::list::erase (inline)
+       0   0.0% 100.0%        4   0.1% std::list::push_back (inline)
+       0   0.0% 100.0%        6   0.2% std::list::push_front (inline)
+       0   0.0% 100.0%        8   0.2% std::list::size (inline)
+       0   0.0% 100.0%        2   0.1% std::map::count (inline)
+       0   0.0% 100.0%        3   0.1% std::map::find (inline)
+       0   0.0% 100.0%        2   0.1% std::map::lower_bound (inline)
+       0   0.0% 100.0%        1   0.0% std::map::operator= (inline)
+       0   0.0% 100.0%        2   0.1% std::map::operator[] (inline)
+       0   0.0% 100.0%       11   0.3% std::mutex::unlock (inline)
+       0   0.0% 100.0%        6   0.2% std::set::count (inline)
+       0   0.0% 100.0%        1   0.0% std::set::end (inline)
+       0   0.0% 100.0%       99   2.5% std::this_thread::__sleep_for
+       0   0.0% 100.0%        3   0.1% std::vector::_M_default_append
+       0   0.0% 100.0%        2   0.1% std::vector::_M_default_append (inline)
+       0   0.0% 100.0%        1   0.0% std::vector::_M_default_initialize (inline)
+       0   0.0% 100.0%        4   0.1% std::vector::_M_emplace_back_aux
+       0   0.0% 100.0%        1   0.0% std::vector::begin (inline)
+       0   0.0% 100.0%        2   0.1% std::vector::operator=
+       0   0.0% 100.0%        3   0.1% std::vector::operator= (inline)
+       0   0.0% 100.0%        3   0.1% std::vector::reserve
+       0   0.0% 100.0%        2   0.1% std::vector::resize (inline)
+       0   0.0% 100.0%        2   0.1% tcmalloc::CentralFreeList::FetchFromOneSpansSafe
+       0   0.0% 100.0%        8   0.2% tcmalloc::CentralFreeList::RemoveRange
+       0   0.0% 100.0%       17   0.4% tcmalloc::PageHeap::DecommitSpan
+       0   0.0% 100.0%       18   0.5% tcmalloc::PageHeap::Delete
+       0   0.0% 100.0%        8   0.2% tcmalloc::PageHeap::GetSizeClassIfCached (inline)
+       0   0.0% 100.0%        2   0.1% tcmalloc::PageHeap::New
+       0   0.0% 100.0%        1   0.0% tcmalloc::ThreadCache::Cleanup
+       0   0.0% 100.0%        1   0.0% tcmalloc::ThreadCache::DeleteCache
+       0   0.0% 100.0%        8   0.2% tcmalloc::ThreadCache::FetchFromCentralCache
+       0   0.0% 100.0%        6   0.2% tcmalloc::ThreadCache::FreeList::PopRange (inline)
+       0   0.0% 100.0%       10   0.3% tcmalloc::ThreadCache::FreeList::Push (inline)
+       0   0.0% 100.0%        3   0.1% tcmalloc::ThreadCache::GetCacheIfPresent (inline)
+       0   0.0% 100.0%        4   0.1% tcmalloc::ThreadCache::ListTooLong
+       0   0.0% 100.0%        6   0.2% tcmalloc::ThreadCache::ReleaseToCentralCache
+       0   0.0% 100.0%        1   0.0% tcmalloc::ThreadCache::Scavenge
+       0   0.0% 100.0%       10   0.3% uninitialized_copy (inline)
+       0   0.0% 100.0%        6   0.2% unique_lock (inline)
+       0   0.0% 100.0%       57   1.4% vector (inline)
+       0   0.0% 100.0%        1   0.0% ~CompressedStorage (inline)
+       0   0.0% 100.0%        2   0.1% ~ExtractorNode (inline)
+       0   0.0% 100.0%        1   0.0% ~SparseBlockMatrixCCS (inline)
+       0   0.0% 100.0%        1   0.0% ~SparseMatrix (inline)
+       0   0.0% 100.0%        1   0.0% ~SpinLockHolder (inline)
+       0   0.0% 100.0%        2   0.1% ~_List_base (inline)
+       0   0.0% 100.0%        1   0.0% ~_List_node (inline)
+       0   0.0% 100.0%       30   0.8% ~_Vector_base (inline)
+       0   0.0% 100.0%        2   0.1% ~list (inline)
+       0   0.0% 100.0%       12   0.3% ~unique_lock (inline)
+       0   0.0% 100.0%       31   0.8% ~vector (inline)

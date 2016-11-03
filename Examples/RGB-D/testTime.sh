@@ -9,7 +9,12 @@ cat log.txt  | grep "Track the local map" | grep -o '[0-9]*\.[0-9]*' > TrackLoca
 cat log.txt  | grep "LocalMap keypoints num" | grep -o '[0-9]*\.[0-9]*' > KeypointsNum.txt
 
 gnuplot -e \
-"plot 'TrackingTimeLog.txt' with linespoint ls 1,  \
+"f(x) = mean_y; \
+fit f(x) 'TrackTimelog.txt' u 0:1 via mean_y; \
+set label 1 gprintf(\"MeanTrackTime = %g\", mean_y) at 2, -5.35; \
+fit f(x) 'FrameTimelog.txt' u 0:1 via mean_y; \
+set label 2 gprintf(\"MeanFrameTime = %g\", mean_y) at 2, 0.35; \
+plot 'TrackingTimeLog.txt' with linespoint ls 1,  \
 'TrackTimelog.txt' with linespoint ls 2,  \
 'FrameTimelog.txt' with linespoint ls 3,  \
 'ComputeKeyPoint.txt' with linespoint ls 4,  \

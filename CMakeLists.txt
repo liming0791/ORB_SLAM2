@@ -6,14 +6,19 @@ set(SERIALPORT_DIR "/home/liming/SerialPort")
 set(IMU_POSE_DIR "/home/liming/IMU_POSE")
 set(MSF_EKF_DIR "/home/liming/msf_ekf")
 
+IF(USE_GPU)
+    #    add_definitions(-DUSE_GPU=${USE_GPU})
+    MESSAGE("Use GPU ORB extractor")
+ENDIF()
+
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g  -march=native ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O0 -g -march=native")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g  -march=native -fopenmp ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O0 -g -march=native -fopenmp ")
 
 # Check C++11 or C++0x support
 include(CheckCXXCompilerFlag)
@@ -41,6 +46,7 @@ find_package(Boost  1.54.0  	     # Minimum or EXACT version e.g. 1.36.0
   REQUIRED             					# Fail with error if Boost is not found
   COMPONENTS serialization system thread				# Boost libraries by their canonical name
   )          
+find_package(GooglePerftools)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
@@ -52,6 +58,8 @@ ${IMU_POSE_DIR}/include
 ${OpenNI_INCLUDE_DIR}
 ${MSF_EKF_DIR}/src
 ${MSF_EKF_DIR}/external/concurrentBuffers/src
+${GooglePerftools_INCLUDE_DIR}
+profiler
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -61,6 +69,7 @@ src/System.cc
 src/Tracking.cc
 src/LocalMapping.cc
 src/LoopClosing.cc
+src/ORBextractorGPU.cc
 src/ORBextractor.cc
 src/ORBmatcher.cc
 src/FrameDrawer.cc
@@ -88,6 +97,7 @@ ${Boost_LIBRARIES}
 ${SERIALPORT_DIR}/lib/libSerialPort.so
 ${IMU_POSE_DIR}/lib/libIMU_POSE.so
 ${MSF_EKF_DIR}/lib/libekf_lib.so
+${GooglePerftools_LIBRARIES}
 )
 
 # Build examples
@@ -96,13 +106,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/RGB-D)
 
 add_executable(rgbd_tum
 Examples/RGB-D/rgbd_tum.cc)
-target_link_libraries(rgbd_tum ${PROJECT_NAME})
+target_link_libraries(rgbd_tum ${PROJECT_NAME} profiler)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/RGB-D_live)
 
 add_executable(rgbd_live
 Examples/RGB-D_live/rgbd_live.cc)
-target_link_libraries(rgbd_live ${PROJECT_NAME})
+target_link_libraries(rgbd_live ${PROJECT_NAME} profiler)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
 
