@@ -68,7 +68,7 @@ public:
 
     // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
     System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, 
-            const bool bUseViewer = true, const bool reuse= false);
+            const bool bUseViewer = true, const bool reuse= false, const bool useGPU = false);
 
     // SetInitR
     // Set initial Rotation Matrix to align with world ground

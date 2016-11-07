@@ -46,7 +46,7 @@ namespace ORB_SLAM2
 {
 
 Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, 
-				   KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, const bool bReuse):
+				   KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, const bool bReuse, const bool useGPU):
     mState(NO_IMAGES_YET), mSensor(sensor), mbOnlyTracking(bReuse), mbVO(false), mpORBVocabulary(pVoc),
     mpKeyFrameDB(pKFDB), mpInitializer(static_cast<Initializer*>(NULL)), mpSystem(pSys),
     mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpMap(pMap), mnLastRelocFrameId(0)
@@ -141,30 +141,32 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     int fIniThFAST = fSettings["ORBextractor.iniThFAST"];
     int fMinThFAST = fSettings["ORBextractor.minThFAST"];
 
-#ifdef USE_GPU
-	printf("use GPU ORB extractor!\n");
-	mpORBextractorLeft = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
-#else
-    mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
-#endif
+    if (useGPU) {
+        printf("use GPU ORB extractor!\n");
+        mpORBextractorLeft = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
+    } else {
+        mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+    }
 
 
     if(sensor==System::STEREO){
-#ifdef USE_GPU
-		printf("use GPU ORB extractor!\n");
-		mpORBextractorRight = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
-#else
-        mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
-#endif
+        if (useGPU) {
+            printf("use GPU ORB extractor!\n");
+            mpORBextractorRight = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
+        } else {
+            mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,
+                    fIniThFAST,fMinThFAST);
+        }
 	}
 
     if(sensor==System::MONOCULAR){
-#ifdef USE_GPU
-		printf("use GPU ORB extractor!\n");
-		mpIniORBextractor = new ORBextractorGPU(2*nFeatures, fScaleFactor, nLevels);
-#else
-        mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
-#endif
+        if (useGPU) {
+            printf("use GPU ORB extractor!\n");
+            mpIniORBextractor = new ORBextractorGPU(2*nFeatures, fScaleFactor, nLevels);
+        } else {
+            mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,
+                    fIniThFAST,fMinThFAST);
+        }
 	}
 
     cout << endl  << "ORB Extractor Parameters: " << endl;

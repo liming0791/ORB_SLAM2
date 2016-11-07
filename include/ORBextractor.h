@@ -28,7 +28,7 @@
 #include <opencv2/nonfree/features2d.hpp>
 #include <opencv2/legacy/legacy.hpp>
 
-
+#include "ORBextractorBase.h"
 
 namespace ORB_SLAM2
 {
@@ -46,7 +46,7 @@ public:
     bool bNoMore;
 };
 
-class ORBextractor
+class ORBextractor: public ORBextractorBase
 {
 public:
     

@@ -40,9 +40,9 @@ int main(int argc, char **argv)
 
     ProfilerStart("profile.prof");
 
-    if(argc != 6)
+    if(argc != 7)
     {
-        cerr << endl << "Usage: ./rgbd_tum path_to_vocabulary path_to_settings path_to_sequence path_to_association reuse" << endl;
+        cerr << endl << "Usage: ./rgbd_tum path_to_vocabulary path_to_settings path_to_sequence path_to_association reuse useGPU" << endl;
         return 1;
     }
 
@@ -68,7 +68,8 @@ int main(int argc, char **argv)
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     bool reuse = atoi(argv[5]);
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::RGBD,true,reuse);
+    bool useGPU = atoi(argv[6]);
+    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::RGBD,true,reuse, useGPU);
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;

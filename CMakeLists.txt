@@ -8,7 +8,7 @@ set(MSF_EKF_DIR "/home/liming/msf_ekf")
 
 IF(USE_GPU)
     #    add_definitions(-DUSE_GPU=${USE_GPU})
-    MESSAGE("Use GPU ORB extractor")
+    #MESSAGE("Use GPU ORB extractor")
 ENDIF()
 
 IF(NOT CMAKE_BUILD_TYPE)

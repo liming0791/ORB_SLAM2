@@ -29,15 +29,20 @@
 #include <opencv2/legacy/legacy.hpp>
 #include <opencv2/gpu/gpu.hpp>
 
+#include "ORBextractorBase.h"
+
 namespace ORB_SLAM2
 {
 
-class ORBextractorGPU : public cv::gpu::ORB_GPU
+class ORBextractorGPU : public ORBextractorBase
 {
 public:
 	ORBextractorGPU(int _nFeatures = 500, float _scaleFactor = 1.2f, int _nLevels = 8, int _edgeThreshold=31, int _firstLevel = 0);
 	
 	~ORBextractorGPU();
+
+    void operator()(cv::InputArray image, cv::InputArray mask, 
+            std::vector<cv::KeyPoint>& keypoints, cv::OutputArray descriptors);
 	
 	int inline GetLevels(){ return nlevels; }
 	
@@ -69,6 +74,8 @@ private:
 	
     std::vector<float> mvInvScaleFactor;
     std::vector<float> mvInvLevelSigma2;
+    
+    cv::gpu::ORB_GPU *p_orb_gpu;
 	
 };
 
