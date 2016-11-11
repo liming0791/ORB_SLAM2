@@ -2,23 +2,37 @@ cmake_minimum_required(VERSION 2.8)
 project(ORB_SLAM2)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-set(SERIALPORT_DIR "/home/liming/SerialPort")
-set(IMU_POSE_DIR "/home/liming/IMU_POSE")
-set(MSF_EKF_DIR "/home/liming/msf_ekf")
 
-IF(USE_GPU)
+#set(SERIALPORT_DIR "/home/liming/SerialPort")
+#set(IMU_POSE_DIR "/home/liming/IMU_POSE")
+#set(MSF_EKF_DIR "/home/liming/msf_ekf")
+
+#IF(KINECT_DRIVER_DIR)
+
+#ENDIF()
+
+#IF(IMU_DRIVER_DIR)
+
+#ENDIF()
+
+#IF(USE_GPU)
     #    add_definitions(-DUSE_GPU=${USE_GPU})
     #MESSAGE("Use GPU ORB extractor")
-ENDIF()
+    #ENDIF()
 
 IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE Release)
+    SET(CMAKE_BUILD_TYPE Release)
+ENDIF()
+
+IF(NOT MARCH)
+    SET(MARCH native)
 ENDIF()
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
+MESSAGE("march type: " ${MARCH})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g  -march=native -fopenmp ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O0 -g -march=native -fopenmp ")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g  -march=${MARCH} ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O0 -g -march=${MARCH} ")
 
 # Check C++11 or C++0x support
 include(CheckCXXCompilerFlag)
@@ -41,63 +55,55 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 find_package(OpenCV 2.4.3 REQUIRED)
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
-find_package(OpenNI REQUIRED)
 find_package(Boost  1.54.0  	     # Minimum or EXACT version e.g. 1.36.0
   REQUIRED             					# Fail with error if Boost is not found
-  COMPONENTS serialization system thread				# Boost libraries by their canonical name
-  )          
-find_package(GooglePerftools)
+  COMPONENTS serialization          # Boost libraries by their canonical name
+)          
+#find_package(GooglePerftools)
+#if(WITH_KINECT)
+#    find_package(OpenNI REQUIRED)
+#ENDIF()
 
 include_directories(
-${PROJECT_SOURCE_DIR}
-${PROJECT_SOURCE_DIR}/include
-${EIGEN3_INCLUDE_DIR}
-${Pangolin_INCLUDE_DIRS}
-${SERIALPORT_DIR}/include
-${IMU_POSE_DIR}/include
-${OpenNI_INCLUDE_DIR}
-${MSF_EKF_DIR}/src
-${MSF_EKF_DIR}/external/concurrentBuffers/src
-${GooglePerftools_INCLUDE_DIR}
-profiler
+    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/include
+    ${EIGEN3_INCLUDE_DIR}
+    ${Pangolin_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 add_library(${PROJECT_NAME} SHARED
-src/System.cc
-src/Tracking.cc
-src/LocalMapping.cc
-src/LoopClosing.cc
-src/ORBextractorGPU.cc
-src/ORBextractor.cc
-src/ORBmatcher.cc
-src/FrameDrawer.cc
-src/Converter.cc
-src/MapPoint.cc
-src/KeyFrame.cc
-src/Map.cc
-src/MapDrawer.cc
-src/Optimizer.cc
-src/PnPsolver.cc
-src/Frame.cc
-src/KeyFrameDatabase.cc
-src/Sim3Solver.cc
-src/Initializer.cc
-src/Viewer.cc
+    src/System.cc
+    src/Tracking.cc
+    src/LocalMapping.cc
+    src/LoopClosing.cc
+    src/ORBextractorGPU.cc
+    src/ORBextractor.cc
+    src/ORBmatcher.cc
+    src/FrameDrawer.cc
+    src/Converter.cc
+    src/MapPoint.cc
+    src/KeyFrame.cc
+    src/Map.cc
+    src/MapDrawer.cc
+    src/Optimizer.cc
+    src/PnPsolver.cc
+    src/Frame.cc
+    src/KeyFrameDatabase.cc
+    src/Sim3Solver.cc
+    src/Initializer.cc
+    src/Viewer.cc
 )
 
 target_link_libraries(${PROJECT_NAME}
-${OpenCV_LIBS}
-${EIGEN3_LIBS}
-${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
-${Pangolin_LIBRARIES}
-${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
-${Boost_LIBRARIES}
-${SERIALPORT_DIR}/lib/libSerialPort.so
-${IMU_POSE_DIR}/lib/libIMU_POSE.so
-${MSF_EKF_DIR}/lib/libekf_lib.so
-${GooglePerftools_LIBRARIES}
+    ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
+    ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
+    ${OpenCV_LIBS}
+    ${EIGEN3_LIBS}
+    ${Pangolin_LIBRARIES}
+    ${Boost_LIBRARIES}
 )
 
 # Build examples
@@ -106,13 +112,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/RGB-D)
 
 add_executable(rgbd_tum
 Examples/RGB-D/rgbd_tum.cc)
-target_link_libraries(rgbd_tum ${PROJECT_NAME} profiler)
+target_link_libraries(rgbd_tum ${PROJECT_NAME})
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/RGB-D_live)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/RGB-D_live)
 
-add_executable(rgbd_live
-Examples/RGB-D_live/rgbd_live.cc)
-target_link_libraries(rgbd_live ${PROJECT_NAME} profiler)
+#add_executable(rgbd_live
+#Examples/RGB-D_live/rgbd_live.cc)
+#target_link_libraries(rgbd_live ${PROJECT_NAME} profiler)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
 

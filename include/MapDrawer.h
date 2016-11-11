@@ -21,6 +21,7 @@
 #ifndef MAPDRAWER_H
 #define MAPDRAWER_H
 
+#include<Eigen/Dense>
 #include"Map.h"
 #include"MapPoint.h"
 #include"KeyFrame.h"

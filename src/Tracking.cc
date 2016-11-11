@@ -117,21 +117,21 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
         cout << "- color order: BGR (ignored if grayscale)" << endl;
 
     // Load IMU parameters
-    IMUScaleX = fSettings["IMU.ScaleX"];
-    IMUScaleY = fSettings["IMU.ScaleY"];
-    IMUScaleZ = fSettings["IMU.ScaleZ"];
-
-    IMUOffsetX = fSettings["IMU.OffsetX"];
-    IMUOffsetY = fSettings["IMU.OffsetY"];
-    IMUOffsetZ = fSettings["IMU.OffsetZ"];
-
-    printf("IMU Parameters:\n");
-    printf("- scale x: %f\n", IMUScaleX);
-    printf("- scale y: %f\n", IMUScaleY);
-    printf("- scale z: %f\n", IMUScaleZ);
-    printf("- offset x: %f\n", IMUOffsetX);
-    printf("- offset y: %f\n", IMUOffsetY);
-    printf("- offset z: %f\n", IMUOffsetZ);
+//    IMUScaleX = fSettings["IMU.ScaleX"];
+//    IMUScaleY = fSettings["IMU.ScaleY"];
+//    IMUScaleZ = fSettings["IMU.ScaleZ"];
+//
+//    IMUOffsetX = fSettings["IMU.OffsetX"];
+//    IMUOffsetY = fSettings["IMU.OffsetY"];
+//    IMUOffsetZ = fSettings["IMU.OffsetZ"];
+//
+//    printf("IMU Parameters:\n");
+//    printf("- scale x: %f\n", IMUScaleX);
+//    printf("- scale y: %f\n", IMUScaleY);
+//    printf("- scale z: %f\n", IMUScaleZ);
+//    printf("- offset x: %f\n", IMUOffsetX);
+//    printf("- offset y: %f\n", IMUOffsetY);
+//    printf("- offset z: %f\n", IMUOffsetZ);
 
     // Load ORB parameters
 
