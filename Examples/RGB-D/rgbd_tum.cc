@@ -28,8 +28,6 @@
 
 #include<System.h>
 
-#include<gperftools/profiler.h>
-
 using namespace std;
 
 void LoadImages(const string &strAssociationFilename, vector<string> &vstrImageFilenamesRGB,
