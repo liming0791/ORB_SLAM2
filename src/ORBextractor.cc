@@ -772,8 +772,8 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
     const float W = 30;
 
 // time
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
+//    struct timeval start, end;
+//    gettimeofday(&start, NULL);
 //    auto beginTime = chrono::high_resolution_clock::now();
 // time
 
@@ -859,12 +859,12 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
     }
 
 // time end
-    gettimeofday(&end, NULL);
-    printf("--------Detect KeyPoints time: %f ms\n", ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e3);
+//    gettimeofday(&end, NULL);
+//    printf("--------Detect KeyPoints time: %f ms\n", ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e3);
 // time end
 
 // time
-	auto beginTime = chrono::high_resolution_clock::now();
+//    auto beginTime = chrono::high_resolution_clock::now();
 // time
 	
     // compute orientations
@@ -872,9 +872,9 @@ void ORBextractor::ComputeKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoin
         computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
 	
 // time end
-	auto endTime = chrono::high_resolution_clock::now();
-	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-    printf("--------Compute Orientation time: %f ms\n", dua/1000.f);
+//    auto endTime = chrono::high_resolution_clock::now();
+//    long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//    printf("--------Compute Orientation time: %f ms\n", dua/1000.f);
 // time end
 	
 }
@@ -1058,138 +1058,138 @@ void ORBextractor::ComputeKeyPointsOld(std::vector<std::vector<KeyPoint> > &allK
         computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
 }
 
-void ORBextractor::ComputeSURFKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoints)
-{
-    allKeypoints.resize(nlevels);
-
-    const float W = 30;
-	
-	SurfFeatureDetector detector(2000,4);
-
-// time
-	auto beginTime = chrono::high_resolution_clock::now();
-// time
-
-// time inner
-	long long oct_dua = 0;
-	double fast_dua = 0;
-// time inner
-	
-    for (int level = 0; level < nlevels; ++level)
-    {
-		printf("level: %d\n", level);
-        const int minBorderX = EDGE_THRESHOLD-3;
-        const int minBorderY = minBorderX;
-        const int maxBorderX = mvImagePyramid[level].cols-EDGE_THRESHOLD+3;
-        const int maxBorderY = mvImagePyramid[level].rows-EDGE_THRESHOLD+3;
-
-        vector<cv::KeyPoint> vToDistributeKeys;
-        vToDistributeKeys.reserve(nfeatures*10);
-
-        const float width = (maxBorderX-minBorderX);
-        const float height = (maxBorderY-minBorderY);
-
-        const int nCols = width/W;
-        const int nRows = height/W;
-        const int wCell = ceil(width/nCols);
-        const int hCell = ceil(height/nRows);
-
-		
-        for(int i=0; i<nRows; i++)
-        {
-            const float iniY =minBorderY+i*hCell;
-            float maxY = iniY+hCell+6;
-		
-            if(iniY>=maxBorderY-3)
-                continue;
-            if(maxY>maxBorderY)
-                maxY = maxBorderY;
-		
-            for(int j=0; j<nCols; j++)
-            {
-                const float iniX =minBorderX+j*wCell;
-                float maxX = iniX+wCell+6;
-                if(iniX>=maxBorderX-6)
-                    continue;
-                if(maxX>maxBorderX)
-                    maxX = maxBorderX;
-		
-                vector<cv::KeyPoint> vKeysCell;
-// time
-				double fast_beginTime = (double)getTickCount();
-// time
-                detector.detect(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
-                     vKeysCell);
-// time end
-				double fast_endTime = (double)getTickCount();
-				fast_dua += (fast_endTime - fast_beginTime)/getTickFrequency();
-// time end
-		
-                if(!vKeysCell.empty())
-                {
-                    for(vector<cv::KeyPoint>::iterator vit=vKeysCell.begin(); vit!=vKeysCell.end();vit++)
-                    {
-                        (*vit).pt.x+=j*wCell;
-                        (*vit).pt.y+=i*hCell;
-                        vToDistributeKeys.push_back(*vit);
-                    }
-                }
-		
-            }
-        }
-
-		
-        vector<KeyPoint> & keypoints = allKeypoints[level];
-        keypoints.reserve(nfeatures);
-
-// time
-		auto oct_beginTime = chrono::high_resolution_clock::now();
-// time
-		
-        keypoints = DistributeOctTree(vToDistributeKeys, minBorderX, maxBorderX,
-                                      minBorderY, maxBorderY,mnFeaturesPerLevel[level], level);
-		
-// time end
-		auto oct_endTime = chrono::high_resolution_clock::now();
-		oct_dua += (long long)chrono::duration_cast<chrono::microseconds>(oct_endTime - oct_beginTime).count();
-// time end
-
-        const int scaledPatchSize = PATCH_SIZE*mvScaleFactor[level];
-
-        // Add border to coordinates and scale information
-        const int nkps = keypoints.size();
-        for(int i=0; i<nkps ; i++)
-        {
-            keypoints[i].pt.x+=minBorderX;
-            keypoints[i].pt.y+=minBorderY;
-            keypoints[i].octave=level;
-            keypoints[i].size = scaledPatchSize;
-        }
-    }
-
-// time end
-	auto endTime = chrono::high_resolution_clock::now();
-	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-    printf("------Detect KeyPoints time: %f ms\n", dua/1000.f);
-	printf("--------FAST time: %f ms\n", fast_dua*1000.f);
-	printf("--------Oct time: %f ms\n", oct_dua/1000.f);
-// time end
-
-// time
-	beginTime = chrono::high_resolution_clock::now();
-// time
-	
-    // compute orientations
+//void ORBextractor::ComputeSURFKeyPointsOctTree(vector<vector<KeyPoint> >& allKeypoints)
+//{
+//    allKeypoints.resize(nlevels);
+//
+//    const float W = 30;
+//	
+//	SurfFeatureDetector detector(2000,4);
+//
+//// time
+//// auto beginTime = chrono::high_resolution_clock::now();
+//// time
+//
+//// time inner
+//// long long oct_dua = 0;
+//// double fast_dua = 0;
+//// time inner
+//	
 //    for (int level = 0; level < nlevels; ++level)
-//        computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
-	
-// time end
-	endTime = chrono::high_resolution_clock::now();
-	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-    printf("------Compute Orientation time: %f ms\n", dua/1000.f);
-// time end
-	
-}
+//    {
+//		printf("level: %d\n", level);
+//        const int minBorderX = EDGE_THRESHOLD-3;
+//        const int minBorderY = minBorderX;
+//        const int maxBorderX = mvImagePyramid[level].cols-EDGE_THRESHOLD+3;
+//        const int maxBorderY = mvImagePyramid[level].rows-EDGE_THRESHOLD+3;
+//
+//        vector<cv::KeyPoint> vToDistributeKeys;
+//        vToDistributeKeys.reserve(nfeatures*10);
+//
+//        const float width = (maxBorderX-minBorderX);
+//        const float height = (maxBorderY-minBorderY);
+//
+//        const int nCols = width/W;
+//        const int nRows = height/W;
+//        const int wCell = ceil(width/nCols);
+//        const int hCell = ceil(height/nRows);
+//
+//		
+//        for(int i=0; i<nRows; i++)
+//        {
+//            const float iniY =minBorderY+i*hCell;
+//            float maxY = iniY+hCell+6;
+//		
+//            if(iniY>=maxBorderY-3)
+//                continue;
+//            if(maxY>maxBorderY)
+//                maxY = maxBorderY;
+//		
+//            for(int j=0; j<nCols; j++)
+//            {
+//                const float iniX =minBorderX+j*wCell;
+//                float maxX = iniX+wCell+6;
+//                if(iniX>=maxBorderX-6)
+//                    continue;
+//                if(maxX>maxBorderX)
+//                    maxX = maxBorderX;
+//		
+//                vector<cv::KeyPoint> vKeysCell;
+//// time
+//				double fast_beginTime = (double)getTickCount();
+//// time
+//                detector.detect(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
+//                     vKeysCell);
+//// time end
+//				double fast_endTime = (double)getTickCount();
+//				fast_dua += (fast_endTime - fast_beginTime)/getTickFrequency();
+//// time end
+//		
+//                if(!vKeysCell.empty())
+//                {
+//                    for(vector<cv::KeyPoint>::iterator vit=vKeysCell.begin(); vit!=vKeysCell.end();vit++)
+//                    {
+//                        (*vit).pt.x+=j*wCell;
+//                        (*vit).pt.y+=i*hCell;
+//                        vToDistributeKeys.push_back(*vit);
+//                    }
+//                }
+//		
+//            }
+//        }
+//
+//		
+//        vector<KeyPoint> & keypoints = allKeypoints[level];
+//        keypoints.reserve(nfeatures);
+//
+//// time
+//		auto oct_beginTime = chrono::high_resolution_clock::now();
+//// time
+//		
+//        keypoints = DistributeOctTree(vToDistributeKeys, minBorderX, maxBorderX,
+//                                      minBorderY, maxBorderY,mnFeaturesPerLevel[level], level);
+//		
+//// time end
+//		auto oct_endTime = chrono::high_resolution_clock::now();
+//		oct_dua += (long long)chrono::duration_cast<chrono::microseconds>(oct_endTime - oct_beginTime).count();
+//// time end
+//
+//        const int scaledPatchSize = PATCH_SIZE*mvScaleFactor[level];
+//
+//        // Add border to coordinates and scale information
+//        const int nkps = keypoints.size();
+//        for(int i=0; i<nkps ; i++)
+//        {
+//            keypoints[i].pt.x+=minBorderX;
+//            keypoints[i].pt.y+=minBorderY;
+//            keypoints[i].octave=level;
+//            keypoints[i].size = scaledPatchSize;
+//        }
+//    }
+//
+//// time end
+//	auto endTime = chrono::high_resolution_clock::now();
+//	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//    printf("------Detect KeyPoints time: %f ms\n", dua/1000.f);
+//	printf("--------FAST time: %f ms\n", fast_dua*1000.f);
+//	printf("--------Oct time: %f ms\n", oct_dua/1000.f);
+//// time end
+//
+//// time
+//	beginTime = chrono::high_resolution_clock::now();
+//// time
+//	
+//    // compute orientations
+////    for (int level = 0; level < nlevels; ++level)
+////        computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
+//	
+//// time end
+//	endTime = chrono::high_resolution_clock::now();
+//	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//    printf("------Compute Orientation time: %f ms\n", dua/1000.f);
+//// time end
+//	
+//}
 
 static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors,
                                const vector<Point>& pattern)
@@ -1211,23 +1211,23 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
 
     // Pre-compute the scale pyramid
 // time
-	auto beginTime = chrono::high_resolution_clock::now();
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
+//    auto beginTime = chrono::high_resolution_clock::now();
+//    struct timeval start, end;
+//    gettimeofday(&start, NULL);
 // time
 	
     ComputePyramid(image);
 	
 // time end
-	auto endTime = chrono::high_resolution_clock::now();
-	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-    gettimeofday(&end, NULL);
-	printf("------ComputePyramid time: %f ms\n", ((end.tv_sec - start.tv_sec)*1000000u +
-            end.tv_usec - start.tv_usec)/1e3);
+//    auto endTime = chrono::high_resolution_clock::now();
+//    long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//    gettimeofday(&end, NULL);
+//    printf("------ComputePyramid time: %f ms\n", ((end.tv_sec - start.tv_sec)*1000000u +
+//            end.tv_usec - start.tv_usec)/1e3);
 // time end
 
 // time
-	beginTime = chrono::high_resolution_clock::now();
+// beginTime = chrono::high_resolution_clock::now();
 // time
 	
     vector < vector<KeyPoint> > allKeypoints;
@@ -1235,9 +1235,9 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     //ComputeKeyPointsOld(allKeypoints);
 	
 // time end
-	endTime = chrono::high_resolution_clock::now();
-	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-    printf("------ComputeKeyPointsOctTree time: %f ms\n", dua/1000.f);
+//    endTime = chrono::high_resolution_clock::now();
+//    dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//    printf("------ComputeKeyPointsOctTree time: %f ms\n", dua/1000.f);
 // time end
 
     Mat descriptors;
@@ -1257,7 +1257,7 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     _keypoints.reserve(nkeypoints);
 
 // time
-	beginTime = chrono::high_resolution_clock::now();
+//    beginTime = chrono::high_resolution_clock::now();
 // time
 	
     int offset = 0;
@@ -1292,9 +1292,9 @@ void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPo
     }
 	
 // time end
-	endTime = chrono::high_resolution_clock::now();
-	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-    printf("------computeDescriptors time: %f ms\n", dua/1000.f);
+//    endTime = chrono::high_resolution_clock::now();
+//    dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//    printf("------computeDescriptors time: %f ms\n", dua/1000.f);
 // time end
 }
 

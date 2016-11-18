@@ -135,16 +135,16 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 
 // time
-	auto beginTime = chrono::high_resolution_clock::now();
+//   auto beginTime = chrono::high_resolution_clock::now();
 // time
 	
     // ORB extraction
     ExtractORB(0,imGray);
 	
 // time end
-	auto endTime = chrono::high_resolution_clock::now();
-	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-	printf("----ExtractORB time: %f ms\n", dua/1000.f);
+//   auto endTime = chrono::high_resolution_clock::now();
+//   long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//   printf("----ExtractORB time: %f ms\n", dua/1000.f);
 // time end
 
     N = mvKeys.size();

@@ -436,7 +436,7 @@ void Tracking::Track()
         bool bOK;
 
 // time it 
-		auto beginTime = chrono::high_resolution_clock::now();
+//      auto beginTime = chrono::high_resolution_clock::now();
 // time it
 		
         // Initial camera pose estimation using motion model or relocalization (if tracking is lost)
@@ -549,15 +549,15 @@ void Tracking::Track()
         }
 
 // time it
-		auto endTime = chrono::high_resolution_clock::now();
-		long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-		printf("----Initial camera pose time: %f ms\n", dua/1000.f);
+//      auto endTime = chrono::high_resolution_clock::now();
+//      long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//      printf("----Initial camera pose time: %f ms\n", dua/1000.f);
 // time it
 		
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
 // time it 
-		beginTime = chrono::high_resolution_clock::now();
+//      beginTime = chrono::high_resolution_clock::now();
 // time it
 		
         // If we have an initial estimation of the camera pose and matching. Track the local map.
@@ -584,9 +584,9 @@ void Tracking::Track()
         }
 		
 // time it
-		endTime = chrono::high_resolution_clock::now();
-		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-		printf("----Track the local map time: %f ms\n", dua/1000.f);
+//      endTime = chrono::high_resolution_clock::now();
+//      dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//      printf("----Track the local map time: %f ms\n", dua/1000.f);
 // time it
 		
 		printf("--------LocalMap keypoints num: %f\n", mvpLocalMapPoints.size()+0.01);
@@ -604,7 +604,7 @@ void Tracking::Track()
 		//cout << "Update FrameDrawer done" << endl;
 
 // time it 
-		beginTime = chrono::high_resolution_clock::now();
+//      beginTime = chrono::high_resolution_clock::now();
 // time it
 		
         // If tracking were good, check if we insert a keyframe
@@ -662,9 +662,9 @@ void Tracking::Track()
 		//cout << "Check keyframe done" << endl;
 		
 // time it
-		endTime = chrono::high_resolution_clock::now();
-		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-		printf("----Check keyframe time: %f ms\n", dua/1000.f);
+//      endTime = chrono::high_resolution_clock::now();
+//      dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//      printf("----Check keyframe time: %f ms\n", dua/1000.f);
 // time it
 		
         // Reset if the camera get lost soon after initialization
@@ -685,7 +685,7 @@ void Tracking::Track()
     }
 	
 // time it 
-		auto beginTime = chrono::high_resolution_clock::now();
+//      auto beginTime = chrono::high_resolution_clock::now();
 // time it
 		
     // Store frame pose information to retrieve the complete camera trajectory afterwards.
@@ -707,9 +707,9 @@ void Tracking::Track()
     }
 	
 // time it
-		auto endTime = chrono::high_resolution_clock::now();
-		long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-		printf("----Store frame pose time: %f ms\n", dua/1000.f);
+//      auto endTime = chrono::high_resolution_clock::now();
+//      long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//      printf("----Store frame pose time: %f ms\n", dua/1000.f);
 // time it	
 		
 	//cout << "Tracking Done" << endl;
@@ -1169,31 +1169,31 @@ bool Tracking::TrackLocalMap()
     // We retrieve the local map and try to find matches to points in the local map.
 
 // time it 
-		auto beginTime = chrono::high_resolution_clock::now();
+//  auto beginTime = chrono::high_resolution_clock::now();
 // time it
 		
     UpdateLocalMap();
 
 // time it
-		auto endTime = chrono::high_resolution_clock::now();
-		long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-		printf("------UpdateLocalMap time: %f ms\n", dua/1000.f);
+//      auto endTime = chrono::high_resolution_clock::now();
+//      long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//		printf("------UpdateLocalMap time: %f ms\n", dua/1000.f);
 // time it
 
 // time it 
-		beginTime = chrono::high_resolution_clock::now();
+//		beginTime = chrono::high_resolution_clock::now();
 // time it
 		
     SearchLocalPoints();
 
 // time it
-		endTime = chrono::high_resolution_clock::now();
-		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-		printf("------SearchLocalPoints time: %f ms\n", dua/1000.f);
+//		endTime = chrono::high_resolution_clock::now();
+//		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//		printf("------SearchLocalPoints time: %f ms\n", dua/1000.f);
 // time it
 		
 // time it 
-		beginTime = chrono::high_resolution_clock::now();
+//		beginTime = chrono::high_resolution_clock::now();
 // time it
 		
     // Optimize Pose
@@ -1201,13 +1201,13 @@ bool Tracking::TrackLocalMap()
     mnMatchesInliers = 0;
 	
 // time it
-		endTime = chrono::high_resolution_clock::now();
-		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-		printf("------PoseOptimization time: %f ms\n", dua/1000.f);
+//      endTime = chrono::high_resolution_clock::now();
+//      dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//      printf("------PoseOptimization time: %f ms\n", dua/1000.f);
 // time it
 		
 // time it 
-		beginTime = chrono::high_resolution_clock::now();
+//      beginTime = chrono::high_resolution_clock::now();
 // time it
 		
     // Update MapPoints Statistics
@@ -1233,9 +1233,9 @@ bool Tracking::TrackLocalMap()
     }
 
 // time it
-		endTime = chrono::high_resolution_clock::now();
-		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-		printf("------Update MapPoints Statistics time: %f ms\n", dua/1000.f);
+//      endTime = chrono::high_resolution_clock::now();
+//      dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//      printf("------Update MapPoints Statistics time: %f ms\n", dua/1000.f);
 // time it
 		
     // Decide if the tracking was succesful
@@ -1433,7 +1433,7 @@ void Tracking::SearchLocalPoints()
 {
 
 // time it 
-	auto beginTime = chrono::high_resolution_clock::now();
+//  auto beginTime = chrono::high_resolution_clock::now();
 // time it
 
     // Do not search map points already matched
@@ -1456,15 +1456,15 @@ void Tracking::SearchLocalPoints()
     }
 	
 // time it
-	auto endTime = chrono::high_resolution_clock::now();
-	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-	printf("--------set already matched time: %f ms\n", dua/1000.f);
+//  auto endTime = chrono::high_resolution_clock::now();
+//  long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//  printf("--------set already matched time: %f ms\n", dua/1000.f);
 // time it
 
     int nToMatch=0;
 
 // time it 
-	beginTime = chrono::high_resolution_clock::now();
+//  beginTime = chrono::high_resolution_clock::now();
 // time it
 	
     // Project points in frame and check its visibility
@@ -1484,13 +1484,13 @@ void Tracking::SearchLocalPoints()
     }
 	
 // time it
-	endTime = chrono::high_resolution_clock::now();
-	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-	printf("--------check visibility time: %f ms\n", dua/1000.f);
+//  endTime = chrono::high_resolution_clock::now();
+//  dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//  printf("--------check visibility time: %f ms\n", dua/1000.f);
 // time it
 
 // time it 
-	beginTime = chrono::high_resolution_clock::now();
+//  beginTime = chrono::high_resolution_clock::now();
 // time it
 	
     if(nToMatch>0)
@@ -1506,9 +1506,9 @@ void Tracking::SearchLocalPoints()
     }
 	
 // time it
-	endTime = chrono::high_resolution_clock::now();
-	dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-	printf("--------SearchByProjection time: %f ms\n", dua/1000.f);
+//  endTime = chrono::high_resolution_clock::now();
+//  dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
+//  printf("--------SearchByProjection time: %f ms\n", dua/1000.f);
 // time it
 	
 	

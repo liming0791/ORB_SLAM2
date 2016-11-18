@@ -44,7 +44,7 @@ namespace g2o
 
   protected:
     Quaterniond r;
-    Vector3d t;
+    Eigen::Vector3d t;
     double s;
 
 
@@ -56,12 +56,12 @@ public:
       s=1.;
     }
 
-    Sim3(const Quaterniond & r, const Vector3d & t, double s)
+    Sim3(const Quaterniond & r, const Eigen::Vector3d & t, double s)
       : r(r),t(t),s(s)
     {
     }
 
-    Sim3(const Matrix3d & R, const Vector3d & t, double s)
+    Sim3(const Matrix3d & R, const Eigen::Vector3d & t, double s)
       : r(Quaterniond(R)),t(t),s(s)
     {
     }
@@ -70,11 +70,11 @@ public:
     Sim3(const Vector7d & update)
     {
 
-      Vector3d omega;
+      Eigen::Vector3d omega;
       for (int i=0; i<3; i++)
         omega[i]=update[i];
 
-      Vector3d upsilon;
+      Eigen::Vector3d upsilon;
       for (int i=0; i<3; i++)
         upsilon[i]=update[i+3];
 
@@ -141,7 +141,7 @@ public:
       t = W*upsilon;
     }
 
-     Vector3d map (const Vector3d& xyz) const {
+     Eigen::Vector3d map (const Eigen::Vector3d& xyz) const {
       return s*(r*xyz) + t;
     }
 
@@ -153,8 +153,8 @@ public:
       
 
    
-      Vector3d omega;
-      Vector3d upsilon;
+      Eigen::Vector3d omega;
+      Eigen::Vector3d upsilon;
 
 
       Matrix3d R = r.toRotationMatrix();
@@ -277,9 +277,9 @@ public:
       return *this;
     }
 
-    inline const Vector3d& translation() const {return t;}
+    inline const Eigen::Vector3d& translation() const {return t;}
 
-    inline Vector3d& translation() {return t;}
+    inline Eigen::Vector3d& translation() {return t;}
 
     inline const Quaterniond& rotation() const {return r;}
 
