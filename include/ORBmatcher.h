@@ -43,6 +43,14 @@ public:
     // Computes the Hamming distance between two ORB descriptors
     static int DescriptorDistance(const cv::Mat &a, const cv::Mat &b);
 
+    // Search matches between Frame keypoints and last frame. Returns number of matches
+    // Used to track the local map (Tracking)
+    int SearchByOriginal(Frame &CurrentFrame, const Frame &LastFrame,const float th, const bool bMono);
+
+    // Search matches between Frame keypoints and last frame. Returns number of matches
+    // Used to track the local map (Tracking)
+    int SearchByHomography(Frame &CurrentFrame, const Frame &LastFrame,const cv::Mat& Homography, const float th, const bool bMono);
+
     // Search matches between Frame keypoints and projected MapPoints. Returns number of matches
     // Used to track the local map (Tracking)
     int SearchByProjection(Frame &F, const std::vector<MapPoint*> &vpMapPoints, const float th=3);

@@ -136,6 +136,12 @@ public:
     // Number of KeyPoints.
     int N;
 
+    // img data
+    cv::Mat img;
+
+    // Thumbnail of Frame, gray 40x30 with 640x480 original image
+    cv::Mat Thumbnail;
+
     // Vector of keypoints (original for visualization) and undistorted (actually used by the system).
     // In the stereo case, mvKeysUn is redundant as images must be rectified.
     // In the RGB-D case, RGB images can be distorted.

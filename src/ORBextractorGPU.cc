@@ -35,7 +35,8 @@ using namespace std;
 namespace ORB_SLAM2
 {
 
-ORBextractorGPU::ORBextractorGPU(int _nFeatures, float _scaleFactor, int _nLevels, int _edgeThreshold, int _firstLevel): nlevels(_nLevels), nfeatures(_nFeatures), scaleFactor(_scaleFactor)
+ORBextractorGPU::ORBextractorGPU(int _nFeatures, float _scaleFactor, int _nLevels, int _edgeThreshold, int _firstLevel): 
+    nlevels(_nLevels), nfeatures(_nFeatures), scaleFactor(_scaleFactor)
 {
 	mvScaleFactor.resize(nlevels);
     mvLevelSigma2.resize(nlevels);
@@ -58,17 +59,21 @@ ORBextractorGPU::ORBextractorGPU(int _nFeatures, float _scaleFactor, int _nLevel
     p_orb_gpu = new cv::gpu::ORB_GPU(_nFeatures, _scaleFactor, 
             _nLevels, _edgeThreshold, _firstLevel);
 
+    p_orb_gpu->blurForDescriptor = true;
+
 }
 
 ORBextractorGPU::~ORBextractorGPU()
 {
-	
-
+	delete p_orb_gpu;
 }
 
 void ORBextractorGPU::operator()(cv::InputArray image, cv::InputArray mask, 
         std::vector<cv::KeyPoint>& keypoints, cv::OutputArray descriptors)
 {
+    if(image.empty())
+        return;
+
     cv::Mat im = image.getMat();
     cv::gpu::GpuMat g_im(im), g_keys, g_descriptors ;
     (*p_orb_gpu)(g_im,cv::gpu::GpuMat(),g_keys,g_descriptors);

@@ -1,0 +1,406 @@
+[33mcommit e92f2881a679b85bd0c44911168675269cb4ca12[m
+Author: liming <liming@rokid.com>
+Date:   Thu Dec 8 15:37:49 2016 +0800
+
+    CLATCH vocabulary
+
+[33mcommit da6f722b7e79d229d007304e5f758d82b4e5169e[m
+Author: liming <liming@rokid.com>
+Date:   Fri Nov 18 20:24:35 2016 +0800
+
+    remove gperftool dependency
+
+[33mcommit fc1d0bbcf2b8d903683544056196f3bc4c8db59c[m
+Author: liming <liming@rokid.com>
+Date:   Fri Nov 18 20:02:55 2016 +0800
+
+    add ROS
+
+[33mcommit 66671b73b4dd9278c97cd5338fc7850eaadee7a7[m
+Author: liming <liming@rokid.com>
+Date:   Fri Nov 18 18:22:15 2016 +0800
+
+    simplify timing process
+
+[33mcommit fa668dd9e3be0a6ef9f8bb4d4bc8ab6fd6824157[m
+Author: liming <liming@rokid.com>
+Date:   Fri Nov 11 15:40:42 2016 +0800
+
+    update
+
+[33mcommit d45c1279bb9462986f296db612f89b0991154297[m
+Author: liming <liming@rokid.com>
+Date:   Mon Nov 7 15:45:01 2016 +0800
+
+    move gpu option into runtime
+
+[33mcommit 8eff1a4d8b1280a7dad3bd4ce256cc7fd730c2e7[m
+Author: liming <liming@rokid.com>
+Date:   Thu Nov 3 16:17:19 2016 +0800
+
+    add GPU ORB
+
+[33mcommit dbee8d3fd2b50b322422e21e1b0f7229a7f1dd69[m
+Author: liming <liming@rokid.com>
+Date:   Thu Oct 27 11:05:05 2016 +0800
+
+    Time log
+
+[33mcommit c2b26f2e6f833b124edcaec5f9c898dcb3bf5cb5[m
+Author: liming <liming@rokid.com>
+Date:   Sat Oct 15 14:19:42 2016 +0800
+
+    remove all except ORB_SLAM core, new ROS wrapper
+
+[33mcommit 1c3887ef195d0fdfa8c26ad4768601bd4b879821[m
+Author: liming <liming@rokid.com>
+Date:   Mon Oct 10 13:08:42 2016 +0800
+
+    v1.0
+
+[33mcommit b03ef0ccd88951c39d3158808966ffad6812c915[m
+Author: liming <liming@rokid.com>
+Date:   Tue Sep 27 20:49:12 2016 +0800
+
+    fuse imu and camera
+
+[33mcommit 1f9625f11d988da96f1c0987ca2c01b84c1671bb[m
+Author: liming <liming@rokid.com>
+Date:   Fri Sep 23 19:17:02 2016 +0800
+
+    map init
+
+[33mcommit 5f6b314a2e886757b4f1d3de2cab83faf3bbf940[m
+Author: liming <liming@rokid.com>
+Date:   Fri Sep 23 19:15:50 2016 +0800
+
+    map gitignore
+
+[33mcommit f7db730875ee7fcb2f0d7afd61d7392b349ed3c3[m
+Author: raulmur <rmurartal@gmail.com>
+Date:   Wed Sep 14 18:28:16 2016 +0200
+
+    update
+
+[33mcommit 3935794f62578b4fa6a5c9b1d3422b0dfe620538[m
+Author: raulmur <rmurartal@gmail.com>
+Date:   Wed Sep 14 18:26:13 2016 +0200
+
+    Fix Bug
+
+[33mcommit 5f3a5800d0432015168741021a353add630b30c2[m
+Merge: b7f0a1e 6effdbf
+Author: raulmur <rmurartal@gmail.com>
+Date:   Tue Sep 13 15:45:51 2016 +0200
+
+    Merge branch 'devel' of https://github.com/raulmur/ORB_SLAM2 into devel
+
+[33mcommit b7f0a1e3423eae19eab86d6dc1a6beaf0d9e462d[m
+Author: raulmur <rmurartal@gmail.com>
+Date:   Tue Sep 13 15:43:27 2016 +0200
+
+    update
+
+[33mcommit 6effdbf4a36c1848e5947d88cb2044a7eeb1c925[m
+Author: Raul Mur-Artal <rmurartal@gmail.com>
+Date:   Tue Sep 13 12:14:11 2016 +0200
+
+    Update README.md
+    
+    Explain Advanced Settings
+
+[33mcommit 4deea00e0f326b197a4056b75096b4cdfc014f54[m
+Author: raulmur <rmurartal@gmail.com>
+Date:   Tue Sep 13 11:52:56 2016 +0200
+
+    Bug Fix. Added Advanced Settings
+    
+    You can now change some advance parameters, by passing System constructor a .yaml file. See AdvancedParameters.yaml example. Use with caution as it can severely degradate the performance.
+
+[33mcommit 132d92fc86ced1926c00509337fd40b445d9e29c[m
+Author: Raul Mur-Artal <rmurartal@gmail.com>
+Date:   Fri May 20 10:39:28 2016 +0200
+
+    Update README.md
+
+[33mcommit cb088152a457e00c92e512a9a8408fdf2e6df50a[m
+Author: Raul Mur-Artal <rmurartal@gmail.com>
+Date:   Thu Apr 28 19:09:19 2016 +0200
+
+    Update mono_kitti.cc
+
+[33mcommit 78020fb60a9097277c1b27f21ffe98dba77904a8[m
+Author: Raul Mur-Artal <rmurartal@gmail.com>
+Date:   Thu Apr 28 19:08:56 2016 +0200
+
+    Update stereo_kitti.cc
+
+[33mcommit d8c9c31147a82b423dba7bf22c5ee39116461865[m
+Author: Raul Mur-Artal <rmurartal@gmail.com>
+Date:   Thu Apr 28 19:08:21 2016 +0200
+
+    Update README.md
+
+[33mcommit 27eaac571e8c7e9c7eaf7986c0a336cc107571b6[m
+Author: Raul Mur-Artal <rmurartal@gmail.com>
+Date:   Wed Mar 30 13:25:29 2016 +0200
+
+    Fix bug
+
+[33mcommit 0492f4a92d873f417227e4b55cfe09f4cc7074cb[m
+Author: Raul Mur-Artal <rmurartal@gmail.com>
+Date:   Thu Mar 10 09:29:47 2016 +0100
+
+    Update README.md
+
+[33mcommit 4f04bc3149b138d01623cf15c2b3005d3b1d8bf4[m
+Author: Raul Mur-Artal <rmurartal@gmail.com>
+Date:   Wed Mar 9 17:50:56 2016 +0100
+
+    Update README.md
+
+[33mcommit 21dd38c94bc137d5c6ff5df8483091295cd05c82[m
+Author: Raul Mur-Artal <rmurartal@gmail.com>
+Date:   Wed Mar 9 17:49:06 2016 +0100
+
+    Update README.md
+    
+    Added documentation for stereo ROS node and EuRoC dataset example.
+
+[33mcommit 1ae333a54107d985468d312d6d84eacb122f4e0d[m
+Author: raulmur <rmurartal@gmail.com>
+Date:   Wed Mar 9 17:24:22 2016 +0100
+
+    Stereo ROS node
+
+[33mcommit 8ff1677f3a62bd6960874275170f643a0ecdc33f[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Thu Mar 3 11:14:17 2016 +0100
+
+    Update README.md
+
+[33mcommit 8f2cea6a9f0f981322cf12fb96cf189676ddc18e[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Wed Mar 2 15:33:01 2016 +0100
+
+    Add include
+    
+    Some OpenCV versions seem to complain
+
+[33mcommit 342e33f92533d630ca333cef319ac9ec85ae4d1c[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Feb 29 10:59:48 2016 +0100
+
+    Update System.cc
+    
+    Adding missing include for setprecision()
+
+[33mcommit 6e2df9ecc06b32a5870282885ce39015b31fb850[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Feb 29 10:58:53 2016 +0100
+
+    Update ORBextractor.cc
+    
+    Adding missing include
+
+[33mcommit 8aa48e0c7ca6e46d36b3a95e080df4969bd4eaec[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Tue Feb 23 12:53:17 2016 +0100
+
+    Update LICENSE.txt
+
+[33mcommit eddb30a950c0edefea6c053491c0fe471e8ac8c1[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Tue Feb 23 12:51:19 2016 +0100
+
+    Update README.md
+
+[33mcommit c60c9395d8f5365c2e280f85e2ff349514c17cc2[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Feb 22 10:10:58 2016 +0100
+
+    Update README.md
+
+[33mcommit 2fc9730d9716c36b25ea1b0eba3bbd094e20f0d5[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Feb 1 14:59:14 2016 +0100
+
+    Update ros_rgbd.cc
+
+[33mcommit af0e9021f84e799ffe9a0f90319162e4ec5b1cf9[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Wed Jan 27 11:38:48 2016 +0100
+
+    Delete CMakeLists.txt
+
+[33mcommit a13a80617bfc2faf93e3e07f9d43c0db6e01cccc[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Tue Jan 26 14:58:44 2016 +0100
+
+    Update stereo_kitti.cc
+
+[33mcommit 575192b2cfc031ad92e5982b8463187e61597c68[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Tue Jan 26 14:57:26 2016 +0100
+
+    Update mono_kitti.cc
+
+[33mcommit a69f44208b9a7be656dd1a859ca76fcb731d2226[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Tue Jan 26 14:57:12 2016 +0100
+
+    Update mono_tum.cc
+
+[33mcommit 4edc519fe75a4757e009cb9b6c470bb35eb36cae[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 17:34:07 2016 +0100
+
+    Update Tracking.h
+
+[33mcommit a257f54b075d7baf976b15d42c1cc2267028faba[m
+Author: raulmur <rmurartal@gmail.com>
+Date:   Mon Jan 25 17:30:47 2016 +0100
+
+    Fix bug
+
+[33mcommit aac9b96362ebb81f13196d93c5dbf33acbf3559e[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 14:26:31 2016 +0100
+
+    Fix bug
+    
+    Local Mapping got stucked at System::Shutdown() if it was already stopped (e.g. if Localization Mode is active)
+
+[33mcommit 0b86438428bd9aec22be2744a1cf5d370a7a5682[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 14:19:05 2016 +0100
+
+    Fix bug
+    
+    Without this, pangolin produces a segfault when the program ends.
+
+[33mcommit 7cd65414f5a7ca54de01380cb2972d527935738f[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 12:21:48 2016 +0100
+
+    Update README.md
+
+[33mcommit 8248af39895f5a8893850490baf6f3209b2ad502[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 12:20:34 2016 +0100
+
+    Update README.md
+
+[33mcommit 99f9484e40ea388f3e2eb4e4b6bfdc83ea44adc2[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 11:56:56 2016 +0100
+
+    Update README.md
+
+[33mcommit 6b8d0c2ced147f1544825d6a40358a492ffcba2d[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 11:54:29 2016 +0100
+
+    Update README.md
+
+[33mcommit 26d548ee4c2edd3953f7fb99f5260ce34a3e277a[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 11:43:16 2016 +0100
+
+    Update README.md
+
+[33mcommit cd8b77f851cb5c5ed1891ea87d59e501222d6a61[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 10:56:11 2016 +0100
+
+    Update README.md
+
+[33mcommit 0eccdfb6d2791ad39b5b67bc95631348e253dfbb[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 10:55:13 2016 +0100
+
+    Update README.md
+
+[33mcommit fa16a8e566b8fac89684fcb76ebae31a7177c921[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Mon Jan 25 09:59:38 2016 +0100
+
+    Update README.md
+
+[33mcommit 5779baf2a6ec3204ab144f09b45dc07417674cd5[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sun Jan 24 11:57:26 2016 +0100
+
+    Update README.md
+
+[33mcommit 2034002d10f533c7e97ca19491b02d8932e233be[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:37:43 2016 +0100
+
+    Update System.h
+
+[33mcommit 9c79ecba9bd45f04e15730766aca159bafe3e54e[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:36:24 2016 +0100
+
+    Update README.md
+
+[33mcommit 8ce6680f2ff836f705cb05b49c68ab825e2f5213[m
+Author: raulmur <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:28:24 2016 +0100
+
+    Add Files
+
+[33mcommit 26fc489061946a6c105663f7b61c14eb082690df[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:23:44 2016 +0100
+
+    Update README.md
+
+[33mcommit fe2d3c87fd89a37f60a6f58f161df805e69eb5df[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:23:04 2016 +0100
+
+    Update README.md
+
+[33mcommit 9fa666303132a97b384ca6316f8f64997bd8b934[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:21:42 2016 +0100
+
+    Update README.md
+
+[33mcommit 4e88577632bfb7763d5490906ff6a1f4e2981c67[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:21:19 2016 +0100
+
+    Update README.md
+
+[33mcommit 45992abb7703b6d4ea59b97aa531251426d17100[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:19:17 2016 +0100
+
+    Update README.md
+
+[33mcommit 3c702cd92b44c5b94205c4099649812d9c2faad5[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:15:13 2016 +0100
+
+    Update README.md
+
+[33mcommit 394becbc324b73bec2d07ba964b9134676fa17f6[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:13:36 2016 +0100
+
+    Update README.md
+
+[33mcommit dd81e1c6679103ee222e455283e6a4f429652d85[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 22:06:00 2016 +0100
+
+    Update README.md
+
+[33mcommit f6016b57e29e4b9facf5b60dbc632d89c227ebcd[m
+Author: Raul Mur Artal <rmurartal@gmail.com>
+Date:   Sat Jan 23 20:46:24 2016 +0100
+
+    Initial commit

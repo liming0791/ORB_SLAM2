@@ -27,8 +27,37 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/legacy/legacy.hpp>
 
+using namespace cv;
+
 namespace ORB_SLAM2
 {
+
+class ExtractorNode
+{
+public:
+    ExtractorNode():bNoMore(false){}
+
+    void DivideNode(ExtractorNode &n1, ExtractorNode &n2, ExtractorNode &n3, ExtractorNode &n4);
+
+    std::vector<cv::KeyPoint> vKeys;
+    cv::Point2i UL, UR, BL, BR;
+    std::list<ExtractorNode>::iterator lit;
+    bool bNoMore;
+};
+
+extern const int PATCH_SIZE;
+extern const int HALF_PATCH_SIZE;
+extern const int EDGE_THRESHOLD;
+
+extern const float factorPI;
+
+extern float IC_Angle(const Mat& image, Point2f pt,  const vector<int> & u_max);
+extern void computeOrbDescriptor(const KeyPoint& kpt,
+                                 const Mat& img, const Point* pattern,
+                                 uchar* desc);
+extern int bit_pattern_31_[];
+extern void computeOrientation(const Mat& image, vector<KeyPoint>& keypoints, const vector<int>& umax);
+extern void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors, const vector<Point>& pattern);
 
 class ORBextractorBase
 {

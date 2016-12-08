@@ -58,7 +58,7 @@ public:
     KeyFrame(Frame &F, Map* pMap, KeyFrameDatabase* pKFDB);
 
     KeyFrame();	/* Default constructor for serialization */
-    
+
 	// Pose functions
     void SetPose(const cv::Mat &Tcw);
     cv::Mat GetPose();

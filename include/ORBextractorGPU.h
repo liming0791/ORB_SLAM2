@@ -64,8 +64,8 @@ public:
     }
 	
 private:
-	int nfeatures;
 	int nlevels;
+	int nfeatures;
 	float scaleFactor;
 	
 	std::vector<float> mvScaleFactor;

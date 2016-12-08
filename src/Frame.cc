@@ -39,7 +39,7 @@ Frame::Frame()
 Frame::Frame(const Frame &frame)
     :mpORBvocabulary(frame.mpORBvocabulary), mpORBextractorLeft(frame.mpORBextractorLeft), mpORBextractorRight(frame.mpORBextractorRight),
      mTimeStamp(frame.mTimeStamp), mK(frame.mK.clone()), mDistCoef(frame.mDistCoef.clone()),
-     mbf(frame.mbf), mb(frame.mb), mThDepth(frame.mThDepth), N(frame.N), mvKeys(frame.mvKeys),
+     mbf(frame.mbf), mb(frame.mb), mThDepth(frame.mThDepth), N(frame.N), img(frame.img), Thumbnail(frame.Thumbnail), mvKeys(frame.mvKeys),
      mvKeysRight(frame.mvKeysRight), mvKeysUn(frame.mvKeysUn),  mvuRight(frame.mvuRight),
      mvDepth(frame.mvDepth), mBowVec(frame.mBowVec), mFeatVec(frame.mFeatVec),
      mDescriptors(frame.mDescriptors.clone()), mDescriptorsRight(frame.mDescriptorsRight.clone()),
@@ -137,6 +137,13 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
 // time
 //   auto beginTime = chrono::high_resolution_clock::now();
 // time
+
+    // Save img data
+    img = imGray;
+
+    // Create Thumbnail
+    cv::resize(imGray, Thumbnail, cv::Size(40, 30));
+    cv::GaussianBlur( Thumbnail, Thumbnail, cv::Size( 3, 3 ), 0, 0 );
 	
     // ORB extraction
     ExtractORB(0,imGray);

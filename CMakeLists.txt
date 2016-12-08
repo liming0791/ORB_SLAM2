@@ -59,6 +59,7 @@ find_package(Boost  1.54.0  	     # Minimum or EXACT version e.g. 1.36.0
   REQUIRED             					# Fail with error if Boost is not found
   COMPONENTS serialization          # Boost libraries by their canonical name
 )          
+find_package(CVD REQUIRED)
 #find_package(GooglePerftools)
 #if(WITH_KINECT)
 #    find_package(OpenNI REQUIRED)
@@ -70,6 +71,7 @@ include_directories(
     ${EIGEN3_INCLUDE_DIR}
     ${Pangolin_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
+    ${CVD_INCLUDE_DIR}
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -80,6 +82,7 @@ add_library(${PROJECT_NAME} SHARED
     src/LocalMapping.cc
     src/LoopClosing.cc
     src/ORBextractorGPU.cc
+    src/ORBextractorGPU_OnlyFAST.cc
     src/ORBextractor.cc
     src/ORBmatcher.cc
     src/FrameDrawer.cc
@@ -104,6 +107,7 @@ target_link_libraries(${PROJECT_NAME}
     ${EIGEN3_LIBS}
     ${Pangolin_LIBRARIES}
     ${Boost_LIBRARIES}
+    ${CVD_LIBRARY}
 )
 
 # Build examples

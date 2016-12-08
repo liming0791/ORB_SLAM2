@@ -17,6 +17,7 @@ FrameTrajectory_TUM_Format.txt
 KeyFrameTrajectory_TUM_Format.txt
 KeyFrameTrajectory.txt
 Vocabulary/ORBvoc.txt
+Vocabulary/CLATCHVoc.txt
 lib/
 *~
 *.bin

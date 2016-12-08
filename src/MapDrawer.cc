@@ -253,11 +253,11 @@ void MapDrawer::SetCurrentCameraPose(const cv::Mat &Tcw)
     {
         unique_lock<mutex> lock(mMutexCamera);
         mCameraPose = Tcw.clone();
-        Rwc =  mCameraPose.rowRange(0,3).colRange(0,3).t();
-        twc = -Rwc*mCameraPose.rowRange(0,3).col(3);
+        //Rwc =  mCameraPose.rowRange(0,3).colRange(0,3).t();
+        //twc = -Rwc*mCameraPose.rowRange(0,3).col(3);
     }
-    SetQ(ORB_SLAM2::Converter::toQuaternion(Rwc));
-    SetT(twc);
+    //SetQ(ORB_SLAM2::Converter::toQuaternion(Rwc));
+    //SetT(twc);
 }
 
 void MapDrawer::SetCurrentCameraPose(const Eigen::Vector3d &T, const Eigen::Quaterniond &_Q)
@@ -270,11 +270,14 @@ void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M)
 {
     if(!Q.empty()&&!T.empty())
     {
-        cv::Mat Rwc(3,3,CV_32F);
+        cv::Mat Rwc;
+        cv::Mat twc;
 
         {
             unique_lock<mutex> lock(mMutexQ);
-            Rwc = ORB_SLAM2::Converter::toMatrix(Q);
+            //Rwc = ORB_SLAM2::Converter::toMatrix(Q);
+            Rwc =  mCameraPose.rowRange(0,3).colRange(0,3).t();
+            twc = -Rwc*mCameraPose.rowRange(0,3).col(3);
         }
 
         M.m[0] = Rwc.at<float>(0,0);
@@ -292,9 +295,9 @@ void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M)
         M.m[10] = Rwc.at<float>(2,2);
         M.m[11]  = 0.0;
 
-        M.m[12] = T[0]; 
-        M.m[13] = T[1]; 
-        M.m[14] = T[2]; 
+        M.m[12] = twc.at<float>(0); 
+        M.m[13] = twc.at<float>(1); 
+        M.m[14] = twc.at<float>(2); 
         M.m[15]  = 1.0;
     }
     else

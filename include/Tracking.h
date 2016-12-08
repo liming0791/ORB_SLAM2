@@ -38,6 +38,7 @@
 #include "ORBextractorBase.h"
 #include "ORBextractor.h"
 #include "ORBextractorGPU.h"
+#include "ORBextractorGPU_OnlyFAST.h"
 #include "Initializer.h"
 #include "MapDrawer.h"
 #include "System.h"
@@ -146,6 +147,10 @@ protected:
     bool TrackReferenceKeyFrame();
     void UpdateLastFrame();
     bool TrackWithMotionModel();
+    bool TrackWithHomography();
+    void FindHomography(Frame& cF, Frame& lF, cv::Mat& resH);
+    void SaveHomographyImage(Frame& cF, Frame& lF, cv::Mat& H, int FrameIdx);
+    bool TrackWithOriginal();
 
     bool Relocalization();
 

@@ -39,6 +39,9 @@
 
 #include<chrono>
 
+#include <cvd/image_io.h>
+#include <cvd/vision.h>
+#include <cvd/esm.h>
 
 using namespace std;
 
@@ -141,18 +144,24 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     int fIniThFAST = fSettings["ORBextractor.iniThFAST"];
     int fMinThFAST = fSettings["ORBextractor.minThFAST"];
 
-    if (useGPU) {
+    if (useGPU==1) {
         printf("use GPU ORB extractor!\n");
         mpORBextractorLeft = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
+    } else if (useGPU==2) {
+        printf("use GPU FAST extractor!\n");
+        mpORBextractorLeft = new ORBextractorGPU_OnlyFAST(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
     } else {
         mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
     }
 
 
     if(sensor==System::STEREO){
-        if (useGPU) {
+        if (useGPU==1) {
             printf("use GPU ORB extractor!\n");
             mpORBextractorRight = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
+        } else if (useGPU==2) {
+            printf("use GPU FAST extractor!\n");
+            mpORBextractorRight = new ORBextractorGPU_OnlyFAST(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
         } else {
             mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,
                     fIniThFAST,fMinThFAST);
@@ -160,9 +169,12 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
 	}
 
     if(sensor==System::MONOCULAR){
-        if (useGPU) {
+        if (useGPU==1) {
             printf("use GPU ORB extractor!\n");
             mpIniORBextractor = new ORBextractorGPU(2*nFeatures, fScaleFactor, nLevels);
+        } else if (useGPU==2) {
+            printf("use GPU FAST extractor!\n");
+            mpIniORBextractor = new ORBextractorGPU_OnlyFAST(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
         } else {
             mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,
                     fIniThFAST,fMinThFAST);
@@ -331,7 +343,12 @@ void Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const doub
 	
 // time end
     gettimeofday(&end, NULL);
-	printf("--Track time: %f ms\n", ((end.tv_sec - start.tv_sec)*1000000u +
+
+    if (mState == Tracking::OK)
+	    printf("--Track time: %f ms\n", ((end.tv_sec - start.tv_sec)*1000000u +
+			end.tv_usec - start.tv_usec)/1e3);
+    else
+        printf("--Track lost time: %f ms\n", ((end.tv_sec - start.tv_sec)*1000000u +
 			end.tv_usec - start.tv_usec)/1e3);
 // time end
 	
@@ -459,14 +476,46 @@ void Tracking::Track()
                 }
                 else
                 {
-                    bOK = TrackWithMotionModel();
+
+                    // Track with motion model
+                    //bOK = TrackWithMotionModel();
+                    //if (!bOK) {
+					//	printf("LOST: TrackWithMotionModel Failed!\n");
+                    //    bOK = TrackReferenceKeyFrame();
+					//	if (!bOK) {
+					//		printf("LOST: TrackReferenceKeyFrame Failed!\n");
+					//	}
+					//}
+
+                    // Track with homography
+                    bOK = TrackWithHomography();
                     if (!bOK) {
-						printf("LOST: TrackWithMotionModel Failed!\n");
-                        bOK = TrackReferenceKeyFrame();
-						if (!bOK) {
-							printf("LOST: TrackReferenceKeyFrame Failed!\n");
-						}
-					}
+                        printf("LOST: TrackWithHomography Failed!\n");
+                        //bOK = TrackWithMotionModel();
+						//if (!bOK) {
+						//	printf("LOST: TrackWithMotionModel Failed!\n");
+                            bOK = TrackReferenceKeyFrame();
+                            if (!bOK) {
+                                printf("LOST: TrackReferenceKeyFrame Failed!\n");
+                            }
+						//}
+                    }
+                    
+                    // Track with original
+                    //bOK = TrackWithOriginal();
+                    //if (!bOK) {
+					//	printf("LOST: TrackWithOriginal Failed!\n");
+                    //    bOK = TrackReferenceKeyFrame();
+					//	if (!bOK) {
+					//		printf("LOST: TrackReferenceKeyFrame Failed!\n");
+					//	}
+					//}
+
+                    // Track with keyframe
+                    //bOK = TrackReferenceKeyFrame();
+                    //if (!bOK) {
+                    //    printf("LOST: TrackReferenceKeyFrame Failed!\n");
+                    //}
                 }
             }
             else
@@ -1006,7 +1055,7 @@ bool Tracking::TrackReferenceKeyFrame()
         return false;
 
     mCurrentFrame.mvpMapPoints = vpMapPointMatches;
-    mCurrentFrame.SetPose(mLastFrame.mTcw);
+    mCurrentFrame.SetPose(mLastFrame.mTcw);     // Set the predict estimation
 
     Optimizer::PoseOptimization(&mCurrentFrame);
 
@@ -1098,6 +1147,220 @@ void Tracking::UpdateLastFrame()
         if(vDepthIdx[j].first>mThDepth && nPoints>100)
             break;
     }
+}
+
+bool Tracking::TrackWithOriginal()
+{
+    ORBmatcher matcher(0.9,true);
+
+    // Update last frame pose according to its reference keyframe
+    // Create "visual odometry" points
+    UpdateLastFrame();
+
+    mCurrentFrame.SetPose(mLastFrame.mTcw);
+
+    fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
+
+    // Project points seen in previous frame
+    int th;
+    if(mSensor!=System::STEREO)
+        th=15;
+    else
+        th=7;
+    // ===== search by homography projection
+    int nmatches = matcher.SearchByOriginal(mCurrentFrame,mLastFrame,th,mSensor==System::MONOCULAR);
+
+    if(nmatches<20)    // If few matches, uses a wider window search
+    {
+        fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
+        nmatches = matcher.SearchByOriginal(mCurrentFrame,mLastFrame,2*th,mSensor==System::MONOCULAR);
+    }
+
+    if(nmatches<20)
+        return false;
+
+    // Optimize frame pose with all matches
+    Optimizer::PoseOptimization(&mCurrentFrame);
+
+    // Discard outliers
+    int nmatchesMap = 0;
+    for(int i =0; i<mCurrentFrame.N; i++)
+    {
+        if(mCurrentFrame.mvpMapPoints[i])
+        {
+            if(mCurrentFrame.mvbOutlier[i])
+            {
+                MapPoint* pMP = mCurrentFrame.mvpMapPoints[i];
+
+                mCurrentFrame.mvpMapPoints[i]=static_cast<MapPoint*>(NULL);
+                mCurrentFrame.mvbOutlier[i]=false;
+                pMP->mbTrackInView = false;
+                pMP->mnLastFrameSeen = mCurrentFrame.mnId;
+                nmatches--;
+            }
+            else if(mCurrentFrame.mvpMapPoints[i]->Observations()>0)
+                nmatchesMap++;
+        }
+    }    
+
+    if(mbOnlyTracking)
+    {
+        mbVO = nmatchesMap<10;
+        return nmatches>20;
+    }
+
+    return nmatchesMap>=10;
+
+}
+
+void Tracking::FindHomography(Frame& cF, Frame& lF, cv::Mat& resH)
+{
+    //static int sFrameIdx = 0;
+    //sFrameIdx++;
+
+    int width = lF.Thumbnail.cols;
+    int height = lF.Thumbnail.rows;
+
+    //printf("Thumbnail size: %d %d\n", width, height);
+
+    float scale = 640.f / width;
+
+    CVD::ImageRef size(width,height);
+    CVD::Image<unsigned char> sRefImg(size), sTarImg(size);
+
+    memcpy(sRefImg.begin(), lF.Thumbnail.data, width*height*sizeof(unsigned char));
+    memcpy(sTarImg.begin(), cF.Thumbnail.data, width*height*sizeof(unsigned char));
+
+    //char name[50] = "";
+    //sprintf(name, "sRefImg%d.png", sFrameIdx);
+    //CVD::img_save(sRefImg, name);
+
+    CVD::Homography<8> homography;
+    CVD::StaticAppearance appearance;
+    CVD::Image< TooN::Vector<2> > greImg = CVD::Internal::gradient<TooN::Vector<2>, unsigned char>(sRefImg);
+    CVD::Internal::esm_opt(homography, appearance, sRefImg, greImg, sTarImg, 40, 1e-8, 1.0);
+    TooN::Matrix<3> H = homography.get_matrix();
+
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            resH.at<float>(i,j) = H(i,j);
+
+    resH.at<float>(0,2) = H(0,2) * scale;
+    resH.at<float>(1,2) = H(1,2) * scale;
+    resH.at<float>(2,0) = H(2,0) / scale;
+    resH.at<float>(2,1) = H(2,1) / scale;
+
+}
+
+void Tracking::SaveHomographyImage(Frame& cF, Frame& lF, cv::Mat& H, int FrameIdx)
+{
+    int width = cF.img.cols;
+    int height = cF.img.rows;
+
+    cv::Mat outImg(height, width, CV_8UC1);
+
+    for ( int x = 0; x < width ; x++) {
+        for ( int y = 0; y < height; y++) {
+            int newx = cvRound((H.at<float>(0,0)*x + H.at<float>(0,1)*y + H.at<float>(0,2))/(H.at<float>(2,0)*x + H.at<float>(2,1)*y + H.at<float>(2,2)));
+            int newy = cvRound((H.at<float>(1,0)*x + H.at<float>(1,1)*y + H.at<float>(1,2))/(H.at<float>(2,0)*x + H.at<float>(2,1)*y + H.at<float>(2,2)));
+            if (newx>=0 && newx<width && newy>=0 && newy<height){
+               outImg.at<unsigned char>(y, x) = 0.5*lF.img.at<unsigned char>(y, x) + 0.5*cF.img.at<unsigned char>(newy, newx); 
+            } else {
+               outImg.at<unsigned char>(y, x) = 0.5*lF.img.at<unsigned char>(y, x); 
+            }
+        }
+    }
+
+
+    char name[50] = "";
+    char name1[50] = "";
+    char name2[50] = "";
+    sprintf(name, "homoImg%d.png", FrameIdx);
+    sprintf(name1, "homoImg%d_1.png", FrameIdx);
+    sprintf(name2, "homoImg%d_2.png", FrameIdx);
+    cv::imwrite(name, outImg);
+    cv::imwrite(name1, cF.img);
+    cv::imwrite(name2, lF.img);
+}
+
+bool Tracking::TrackWithHomography()
+{
+    static int FrameIdx = -1;
+    FrameIdx++;
+
+    ORBmatcher matcher(0.9,true);
+
+    // Update last frame pose according to its reference keyframe
+    // Create "visual odometry" points
+    UpdateLastFrame();
+
+    //mCurrentFrame.SetPose(mLastFrame.mTcw);
+    mCurrentFrame.SetPose(mLastFrame.mTcw);
+
+    fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
+
+    // === Find 2D Homography
+    cv::Mat H(3, 3, CV_32FC1);
+    FindHomography(mCurrentFrame, mLastFrame, H);
+
+    // Project points seen in previous frame
+    int th;
+    if(mSensor!=System::STEREO)
+        th=15;
+    else
+        th=5;
+    // ===== search by homography projection
+    int nmatches = matcher.SearchByHomography(mCurrentFrame,mLastFrame,H,th,mSensor==System::MONOCULAR);
+
+    //if(nmatches<20)    // If few matches, uses a wider window search
+    //{
+    //    fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
+    //    nmatches = matcher.SearchByHomography(mCurrentFrame,mLastFrame,H,2*th,mSensor==System::MONOCULAR);
+    //}
+
+    if(nmatches<20)
+    {
+        SaveHomographyImage(mCurrentFrame, mLastFrame, H, FrameIdx);
+        return false;
+    }
+
+    // Optimize frame pose with all matches
+    Optimizer::PoseOptimization(&mCurrentFrame);
+
+    // Discard outliers
+    int nmatchesMap = 0;
+    for(int i =0; i<mCurrentFrame.N; i++)
+    {
+        if(mCurrentFrame.mvpMapPoints[i])
+        {
+            if(mCurrentFrame.mvbOutlier[i])
+            {
+                MapPoint* pMP = mCurrentFrame.mvpMapPoints[i];
+
+                mCurrentFrame.mvpMapPoints[i]=static_cast<MapPoint*>(NULL);
+                mCurrentFrame.mvbOutlier[i]=false;
+                pMP->mbTrackInView = false;
+                pMP->mnLastFrameSeen = mCurrentFrame.mnId;
+                nmatches--;
+            }
+            else if(mCurrentFrame.mvpMapPoints[i]->Observations()>0)
+                nmatchesMap++;
+        }
+    }    
+
+    if(mbOnlyTracking)
+    {
+        mbVO = nmatchesMap<10;
+        return nmatches>20;
+    }
+
+    if (nmatchesMap>=10) {
+        return true;
+    } else {
+        SaveHomographyImage(mCurrentFrame, mLastFrame, H, FrameIdx);
+        return false;
+    }
+
 }
 
 bool Tracking::TrackWithMotionModel()

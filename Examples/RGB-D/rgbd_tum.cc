@@ -77,6 +77,7 @@ int main(int argc, char **argv)
 
     // Main loop
     cv::Mat imRGB, imD;
+    cv::Mat imRGB_h, imD_h;
     for(int ni=0; ni<nImages; ni++)
     {
         // Read image and depthmap from file
@@ -97,8 +98,11 @@ int main(int argc, char **argv)
         std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
 #endif
 
+        cv::resize(imRGB, imRGB_h, cv::Size(320, 240));
+        cv::resize(imD, imD_h, cv::Size(320, 240));
+
         // Pass the image to the SLAM system
-        SLAM.TrackRGBD(imRGB,imD,tframe);
+        SLAM.TrackRGBD(imRGB_h,imD_h,tframe);
 
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
