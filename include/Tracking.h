@@ -34,7 +34,9 @@
 #include"LoopClosing.h"
 #include"Frame.h"
 #include "ORBVocabulary.h"
+#include "CLATCHVocabulary.h"
 #include "KeyFrameDatabase.h"
+#include "CLATCHextractor.h"
 #include "ORBextractorBase.h"
 #include "ORBextractor.h"
 #include "ORBextractorGPU.h"
@@ -60,7 +62,7 @@ class Tracking
 {  
 
 public:
-    Tracking(System* pSys, ORBVocabulary* pVoc, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Map* pMap,
+    Tracking(System* pSys, CLATCHVocabulary* pVoc, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Map* pMap,
              KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, const bool bReuse, const bool useGPU);
 
     // Preprocess the input and call Track(). Extract features and performs stereo matching.
@@ -178,8 +180,12 @@ protected:
     ORBextractorBase* mpORBextractorLeft, *mpORBextractorRight;
     ORBextractorBase* mpIniORBextractor;
 
+    //CLATCH
+    CLATCHextractor* mpCLATCHextractorLeft, *mpCLATCHextractorRight;
+    CLATCHextractor* mpIniCLATCHextractor;
+
     //BoW
-    ORBVocabulary* mpORBVocabulary;
+    CLATCHVocabulary* mpORBVocabulary;
     KeyFrameDatabase* mpKeyFrameDB;
 
     // Initalization (only for monocular)

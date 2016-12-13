@@ -774,7 +774,7 @@ void KeyFrame::SetKeyFrameDatabase(KeyFrameDatabase* pKeyFrameDB)
     mpKeyFrameDB = pKeyFrameDB;
 }
 
-void KeyFrame::SetORBvocabulary(ORBVocabulary* pORBvocabulary)
+void KeyFrame::SetORBvocabulary(CLATCHVocabulary* pORBvocabulary)
 {
     mpORBvocabulary = pORBvocabulary;
 }

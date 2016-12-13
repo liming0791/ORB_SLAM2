@@ -18,8 +18,8 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ORBEXTRACTOR_H
-#define ORBEXTRACTOR_H
+#ifndef CLATCHEXTRACTOR_H
+#define CLATCHEXTRACTOR_H
 
 #include <vector>
 #include <list>
@@ -28,23 +28,24 @@
 #include <opencv2/legacy/legacy.hpp>
 
 #include "ORBextractorBase.h"
+#include "Clatch.h"
 
 namespace ORB_SLAM2
 {
 
-class ORBextractor: public ORBextractorBase
+class CLATCHextractor
 {
 public:
     
     enum {HARRIS_SCORE=0, FAST_SCORE=1 };
 
-    ORBextractor(int nfeatures, float scaleFactor, int nlevels,
+    CLATCHextractor(int nfeatures, float scaleFactor, int nlevels,
                  int iniThFAST, int minThFAST);
 
-    ~ORBextractor(){}
+    ~CLATCHextractor(){}
 
-    // Compute the ORB features and descriptors on an image.
-    // ORB are dispersed on the image using an octree.
+    // Compute the CLATCH features and descriptors on an image.
+    // CLATCH are dispersed on the image using an octree.
     // Mask is ignored in the current implementation.
     void operator()( cv::InputArray image, cv::InputArray mask,
       std::vector<cv::KeyPoint>& keypoints,
@@ -82,7 +83,9 @@ protected:
                                            const int &maxX, const int &minY, const int &maxY, const int &nFeatures, const int &level);
 
     void ComputeKeyPointsOld(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);
-    std::vector<cv::Point> pattern;
+    void computeDescriptors(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors);
+    void computeOrientation(const cv::Mat& image, std::vector<cv::KeyPoint>& keypoints, const std::vector<int>& umax);
+    float IC_Angle(const cv::Mat& image, cv::Point2f pt,  const std::vector<int> & u_max);
 
     int nfeatures;
     double scaleFactor;
@@ -98,6 +101,14 @@ protected:
     std::vector<float> mvInvScaleFactor;    
     std::vector<float> mvLevelSigma2;
     std::vector<float> mvInvLevelSigma2;
+
+    const int PATCH_SIZE;
+    const int HALF_PATCH_SIZE;
+    const int EDGE_THRESHOLD;
+
+    const float factorPI;
+
+    Clatch clatch;
 };
 
 } //namespace ORB_SLAM

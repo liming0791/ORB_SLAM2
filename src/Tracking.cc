@@ -25,6 +25,7 @@
 #include<opencv2/features2d/features2d.hpp>
 
 #include"ORBmatcher.h"
+#include"CLATCHmatcher.h"
 #include"FrameDrawer.h"
 #include"Converter.h"
 #include"Map.h"
@@ -48,7 +49,7 @@ using namespace std;
 namespace ORB_SLAM2
 {
 
-Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, 
+Tracking::Tracking(System *pSys, CLATCHVocabulary* pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Map *pMap, 
 				   KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, const bool bReuse, const bool useGPU):
     mState(NO_IMAGES_YET), mSensor(sensor), mbOnlyTracking(bReuse), mbVO(false), mpORBVocabulary(pVoc),
     mpKeyFrameDB(pKFDB), mpInitializer(static_cast<Initializer*>(NULL)), mpSystem(pSys),
@@ -144,41 +145,47 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     int fIniThFAST = fSettings["ORBextractor.iniThFAST"];
     int fMinThFAST = fSettings["ORBextractor.minThFAST"];
 
-    if (useGPU==1) {
-        printf("use GPU ORB extractor!\n");
-        mpORBextractorLeft = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
-    } else if (useGPU==2) {
-        printf("use GPU FAST extractor!\n");
-        mpORBextractorLeft = new ORBextractorGPU_OnlyFAST(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
-    } else {
-        mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
-    }
-
+    //if (useGPU==1) {
+    //    printf("use GPU ORB extractor!\n");
+    //    mpORBextractorLeft = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
+    //} else if (useGPU==2) {
+    //    printf("use GPU FAST extractor!\n");
+    //    mpORBextractorLeft = new ORBextractorGPU_OnlyFAST(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+    //} else {
+    //    mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+    //}
+ 
+    mpCLATCHextractorLeft = new CLATCHextractor(
+            nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
     if(sensor==System::STEREO){
-        if (useGPU==1) {
-            printf("use GPU ORB extractor!\n");
-            mpORBextractorRight = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
-        } else if (useGPU==2) {
-            printf("use GPU FAST extractor!\n");
-            mpORBextractorRight = new ORBextractorGPU_OnlyFAST(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
-        } else {
-            mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,
-                    fIniThFAST,fMinThFAST);
-        }
+       // if (useGPU==1) {
+       //     printf("use GPU ORB extractor!\n");
+       //     mpORBextractorRight = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
+       // } else if (useGPU==2) {
+       //     printf("use GPU FAST extractor!\n");
+       //     mpORBextractorRight = new ORBextractorGPU_OnlyFAST(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+       // } else {
+       //     mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,
+       //             fIniThFAST,fMinThFAST);
+       // }
+       mpCLATCHextractorRight = new CLATCHextractor(
+            nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 	}
 
     if(sensor==System::MONOCULAR){
-        if (useGPU==1) {
-            printf("use GPU ORB extractor!\n");
-            mpIniORBextractor = new ORBextractorGPU(2*nFeatures, fScaleFactor, nLevels);
-        } else if (useGPU==2) {
-            printf("use GPU FAST extractor!\n");
-            mpIniORBextractor = new ORBextractorGPU_OnlyFAST(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
-        } else {
-            mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,
-                    fIniThFAST,fMinThFAST);
-        }
+        //if (useGPU==1) {
+        //    printf("use GPU ORB extractor!\n");
+        //    mpIniORBextractor = new ORBextractorGPU(2*nFeatures, fScaleFactor, nLevels);
+        //} else if (useGPU==2) {
+        //    printf("use GPU FAST extractor!\n");
+        //    mpIniORBextractor = new ORBextractorGPU_OnlyFAST(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+        //} else {
+        //    mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,
+        //            fIniThFAST,fMinThFAST);
+        //}
+        mpIniCLATCHextractor= new CLATCHextractor(
+            2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 	}
 
     cout << endl  << "ORB Extractor Parameters: " << endl;
@@ -286,7 +293,7 @@ cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRe
     }
 
 	auto beginTime = chrono::high_resolution_clock::now();
-    mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+    mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpCLATCHextractorLeft,mpCLATCHextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 	auto endTime = chrono::high_resolution_clock::now();
 	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
 	printf("Construct a Frame time: %f ms\n", dua/1000.f);
@@ -326,7 +333,7 @@ void Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const doub
     gettimeofday(&start, NULL);
 // time
     
-	mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+	mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpCLATCHextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 	
 // time end
     gettimeofday(&end, NULL);
@@ -381,9 +388,9 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
     }
 
     if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET)
-        mCurrentFrame = Frame(mImGray,timestamp,mpIniORBextractor,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+        mCurrentFrame = Frame(mImGray,timestamp,mpIniCLATCHextractor,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
     else
-        mCurrentFrame = Frame(mImGray,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+        mCurrentFrame = Frame(mImGray,timestamp,mpCLATCHextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
     Track();
 
@@ -874,7 +881,7 @@ void Tracking::MonocularInitialization()
         }
 
         // Find correspondences
-        ORBmatcher matcher(0.9,true);
+        CLATCHmatcher matcher(0.9,true);
         int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,100);
 
         // Check if there are enough correspondences
@@ -1046,13 +1053,18 @@ bool Tracking::TrackReferenceKeyFrame()
 
     // We perform first an ORB matching with the reference keyframe
     // If enough matches are found we setup a PnP solver
-    ORBmatcher matcher(0.7,true);
+    CLATCHmatcher matcher(0.9,true);
     vector<MapPoint*> vpMapPointMatches;
 
     int nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
 
     if(nmatches<15)
+    {
+        printf("nmatches less than 15, is %d, return false\n", nmatches);
         return false;
+    } else {
+        printf("nmatches %d\n", nmatches);
+    }
 
     mCurrentFrame.mvpMapPoints = vpMapPointMatches;
     mCurrentFrame.SetPose(mLastFrame.mTcw);     // Set the predict estimation
@@ -1151,7 +1163,7 @@ void Tracking::UpdateLastFrame()
 
 bool Tracking::TrackWithOriginal()
 {
-    ORBmatcher matcher(0.9,true);
+    CLATCHmatcher matcher(0.9,true);
 
     // Update last frame pose according to its reference keyframe
     // Create "visual odometry" points
@@ -1288,7 +1300,7 @@ bool Tracking::TrackWithHomography()
     static int FrameIdx = -1;
     FrameIdx++;
 
-    ORBmatcher matcher(0.9,true);
+    CLATCHmatcher matcher(0.9,true);
 
     // Update last frame pose according to its reference keyframe
     // Create "visual odometry" points
@@ -1365,7 +1377,7 @@ bool Tracking::TrackWithHomography()
 
 bool Tracking::TrackWithMotionModel()
 {
-    ORBmatcher matcher(0.9,true);
+    CLATCHmatcher matcher(0.9,true);
 
     // Update last frame pose according to its reference keyframe
     // Create "visual odometry" points
@@ -1758,7 +1770,7 @@ void Tracking::SearchLocalPoints()
 	
     if(nToMatch>0)
     {
-        ORBmatcher matcher(0.8);
+        CLATCHmatcher matcher(0.8);
         int th = 1;
         if(mSensor==System::RGBD)
             th=3;
@@ -1944,7 +1956,7 @@ bool Tracking::Relocalization()
 
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
-    ORBmatcher matcher(0.75,true);
+    CLATCHmatcher matcher(0.75,true);
 
     vector<PnPsolver*> vpPnPsolvers;
     vpPnPsolvers.resize(nKFs);
@@ -1987,7 +1999,7 @@ bool Tracking::Relocalization()
     // Alternatively perform some iterations of P4P RANSAC
     // Until we found a camera pose supported by enough inliers
     bool bMatch = false;
-    ORBmatcher matcher2(0.9,true);
+    CLATCHmatcher matcher2(0.9,true);
 
     while(nCandidates>0 && !bMatch)
     {

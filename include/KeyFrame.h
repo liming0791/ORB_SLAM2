@@ -26,7 +26,9 @@ using namespace std;
 #include "Thirdparty/DBoW2/DBoW2/BowVector.h"
 #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
 #include "ORBVocabulary.h"
+#include "CLATCHVocabulary.h"
 #include "ORBextractor.h"
+#include "CLATCHextractor.h"
 #include "Frame.h"
 #include "KeyFrameDatabase.h"
 
@@ -132,7 +134,7 @@ public:
 
 	void SetMap(Map* map);
 	void SetKeyFrameDatabase(KeyFrameDatabase* pKeyFrameDB);
-	void SetORBvocabulary(ORBVocabulary* pORBvocabulary);
+	void SetORBvocabulary(CLATCHVocabulary* pORBvocabulary);
 	void SetMapPoints(std::vector<MapPoint*> spMapPoints);
 	void SetSpanningTree(std::vector<KeyFrame*> vpKeyFrames);
 	void SetGridParams(std::vector<KeyFrame*> vpKeyFrames);
@@ -227,7 +229,7 @@ protected:
 
  	// BoW
     KeyFrameDatabase* mpKeyFrameDB;
-    ORBVocabulary* mpORBvocabulary;
+    CLATCHVocabulary* mpORBvocabulary;
 
     // Grid over the image to speed up feature matching
     std::vector< std::vector <std::vector<size_t> > > mGrid;

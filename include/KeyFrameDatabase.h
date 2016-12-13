@@ -28,6 +28,7 @@
 #include "KeyFrame.h"
 #include "Frame.h"
 #include "ORBVocabulary.h"
+#include "CLATCHVocabulary.h"
 
 #include<mutex>
 
@@ -49,12 +50,12 @@ class KeyFrameDatabase
 {
 public:
 
-    KeyFrameDatabase(ORBVocabulary &voc);
+    KeyFrameDatabase(CLATCHVocabulary &voc);
     KeyFrameDatabase() {;}
 
    void add(KeyFrame* pKF);
 
-   void set_vocab(ORBVocabulary* pvoc);
+   void set_vocab(CLATCHVocabulary* pvoc);
 
    void erase(KeyFrame* pKF);
 
@@ -69,7 +70,7 @@ public:
 protected:
 
   // Associated vocabulary
-  ORBVocabulary* mpVoc;
+  CLATCHVocabulary* mpVoc;
 
   // Inverted file
   std::vector<list<KeyFrame*> > mvInvertedFile;

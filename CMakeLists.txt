@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 #set(SERIALPORT_DIR "/home/liming/SerialPort")
 #set(IMU_POSE_DIR "/home/liming/IMU_POSE")
 #set(MSF_EKF_DIR "/home/liming/msf_ekf")
+set(CLATCH_DIR "/media/ubuntu/Data/liming/CLATCH")
 
 #IF(KINECT_DRIVER_DIR)
 
@@ -31,8 +32,8 @@ ENDIF()
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 MESSAGE("march type: " ${MARCH})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g  -march=${MARCH} ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O0 -g -march=${MARCH} ")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O0 -g -fpermissive")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O0 -g -fpermissive")
 
 # Check C++11 or C++0x support
 include(CheckCXXCompilerFlag)
@@ -72,6 +73,8 @@ include_directories(
     ${Pangolin_INCLUDE_DIRS}
     ${Boost_INCLUDE_DIRS}
     ${CVD_INCLUDE_DIR}
+    ${CLATCH_DIR}
+    /usr/local/cuda/include
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -85,6 +88,8 @@ add_library(${PROJECT_NAME} SHARED
     src/ORBextractorGPU_OnlyFAST.cc
     src/ORBextractor.cc
     src/ORBmatcher.cc
+    src/CLATCHextractor.cc
+    src/CLATCHmatcher.cc
     src/FrameDrawer.cc
     src/Converter.cc
     src/MapPoint.cc
@@ -103,6 +108,8 @@ add_library(${PROJECT_NAME} SHARED
 target_link_libraries(${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
     ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
+    ${CLATCH_DIR}/Clatch.o
+    ${CLATCH_DIR}/CLATCH.o
     ${OpenCV_LIBS}
     ${EIGEN3_LIBS}
     ${Pangolin_LIBRARIES}

@@ -48,8 +48,10 @@ int main(int argc, char **argv) {
   //save_as_binary(voc, "Vocabulary/CLATCHvoc.bin");
 
   ORB_SLAM2::CLATCHVocabulary* voc = new ORB_SLAM2::CLATCHVocabulary();
-  load_as_text(voc, "Vocabulary/CLATCHVoc.txt");
+  load_as_xml(voc, "Vocabulary/small_clatch_voc.yml");
   save_as_binary(voc, "Vocabulary/CLATCHVoc.bin");
+  //load_as_text(voc, "Vocabulary/CLATCHVoc.txt");
+  //save_as_binary(voc, "Vocabulary/CLATCHVoc_txt.bin");
 
   return 0;
 }

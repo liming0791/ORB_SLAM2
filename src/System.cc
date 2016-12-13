@@ -65,13 +65,22 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mStringSettingsFile = strSettingsFile; 
 
     //Load ORB Vocabulary
-    mpVocabulary = new ORBVocabulary();
-    cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
+    //mpVocabulary = new ORBVocabulary();
+    //cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
+    //bool bVocLoad = false; // chose loading method based on file extension
+    //if (has_suffix(strVocFile, ".txt"))
+    //    bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+    //else
+    //    bVocLoad = mpVocabulary->loadFromBinaryFile(strVocFile);
+
+    // Load CLATCH Vocabulary
+    mpCLATCHVocabulary = new CLATCHVocabulary();
+    cout << endl << "Loading CLATCH Vocabulary. This could take a while..." << endl;
     bool bVocLoad = false; // chose loading method based on file extension
     if (has_suffix(strVocFile, ".txt"))
-        bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+        bVocLoad = mpCLATCHVocabulary->loadFromTextFile(strVocFile);
     else
-        bVocLoad = mpVocabulary->loadFromBinaryFile(strVocFile);
+        bVocLoad = mpCLATCHVocabulary->loadFromBinaryFile(strVocFile);
 
     
     //bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
@@ -83,7 +92,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     }
     cout << "Vocabulary loaded!" << endl << endl;
     //Create KeyFrame Database
-    mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
+    mpKeyFrameDatabase = new KeyFrameDatabase(*mpCLATCHVocabulary);
 
     //Create the Map
     if (!bReuse)
@@ -104,7 +113,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     //Initialize the Tracking thread
     //(it will live in the main thread of execution, the one that called this constructor)
-    mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
+    mpTracker = new Tracking(this, mpCLATCHVocabulary, mpFrameDrawer, mpMapDrawer,
                              mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor, bReuse, useGPU);
 
     //Initialize the Local Mapping thread and launch
@@ -112,11 +121,12 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,mpLocalMapper);
 
     //Initialize the Loop Closing thread and launch
-    mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR);
+    mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpCLATCHVocabulary, mSensor!=MONOCULAR);
     mptLoopClosing = new thread(&ORB_SLAM2::LoopClosing::Run, mpLoopCloser);
 
     //Initialize the Viewer thread and launch
     mpViewer = new Viewer(this, mpFrameDrawer,mpMapDrawer,mpTracker,strSettingsFile, bReuse);
+    if (bUseViewer)
     {
         mptViewer = new thread(&Viewer::Run, mpViewer);
     }
@@ -353,7 +363,7 @@ bool System::LoadMap(const string &filename)
 	vector<ORB_SLAM2::KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
 	for (vector<ORB_SLAM2::KeyFrame*>::iterator it = vpKFs.begin(); it != vpKFs.end(); ++it) {
 		(*it)->SetKeyFrameDatabase(mpKeyFrameDatabase);
-		(*it)->SetORBvocabulary(mpVocabulary);
+		(*it)->SetORBvocabulary(mpCLATCHVocabulary);
 		(*it)->SetMap(mpMap);
 		(*it)->ComputeBoW();
 		mpKeyFrameDatabase->add(*it);
@@ -419,7 +429,7 @@ bool System::LoadInitMap(const string &filename)
 	vector<ORB_SLAM2::KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
 	for (vector<ORB_SLAM2::KeyFrame*>::iterator it = vpKFs.begin(); it != vpKFs.end(); ++it) {
 		(*it)->SetKeyFrameDatabase(mpKeyFrameDatabase);
-		(*it)->SetORBvocabulary(mpVocabulary);
+		(*it)->SetORBvocabulary(mpCLATCHVocabulary);
 		(*it)->SetMap(mpMap);
 		(*it)->ComputeBoW();
 		mpKeyFrameDatabase->add(*it);

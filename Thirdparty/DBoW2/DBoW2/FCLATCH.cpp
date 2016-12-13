@@ -15,6 +15,7 @@
 #include <sstream>
 #include <stdint-gcc.h>
 
+#include "../DUtils/LUT.h"
 #include "FCLATCH.h"
 
 using namespace std;
@@ -84,20 +85,34 @@ int FCLATCH::distance(const FCLATCH::TDescriptor &a,
   // Bit set count operation from
   // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
 
-  const int *pa = a.ptr<int32_t>();
-  const int *pb = b.ptr<int32_t>();
+  //const int *pa = a.ptr<int32_t>();
+  //const int *pb = b.ptr<int32_t>();
 
-  int dist=0;
+  //int dist=0;
 
-  for(int i=0; i<8; i++, pa++, pb++)
+  //for(int i=0; i<16; i++, pa++, pb++)
+  //{
+  //    unsigned  int v = *pa ^ *pb;
+  //    v = v - ((v >> 1) & 0x55555555);
+  //    v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
+  //    dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+  //}
+
+  //return dist;
+
+  // If uint64_t is not defined in your system, you can try this 
+  // portable approach
+  const unsigned char *pa, *pb;
+  pa = a.ptr<unsigned char>();
+  pb = b.ptr<unsigned char>();
+
+  int ret = 0;
+  for(int i = 0; i < a.cols; ++i, ++pa, ++pb)
   {
-      unsigned  int v = *pa ^ *pb;
-      v = v - ((v >> 1) & 0x55555555);
-      v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
-      dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+      ret += DUtils::LUT::ones8bits[ *pa ^ *pb ];
   }
 
-  return dist;
+  return ret;
 }
 
 // --------------------------------------------------------------------------
@@ -174,14 +189,14 @@ void FCLATCH::toMat32F(const std::vector<TDescriptor> &descriptors,
 void FCLATCH::toMat8U(const std::vector<TDescriptor> &descriptors, 
   cv::Mat &mat)
 {
-  mat.create(descriptors.size(), 32, CV_8U);
+  mat.create(descriptors.size(), 64, CV_8U);
   
   unsigned char *p = mat.ptr<unsigned char>();
   
-  for(size_t i = 0; i < descriptors.size(); ++i, p += 32)
+  for(size_t i = 0; i < descriptors.size(); ++i, p += 64)
   {
     const unsigned char *d = descriptors[i].ptr<unsigned char>();
-    std::copy(d, d+32, p);
+    std::copy(d, d+64, p);
   }
   
 }

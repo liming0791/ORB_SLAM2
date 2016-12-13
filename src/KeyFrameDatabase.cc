@@ -30,13 +30,13 @@ using namespace std;
 namespace ORB_SLAM2
 {
 
-KeyFrameDatabase::KeyFrameDatabase (ORBVocabulary &voc):
+KeyFrameDatabase::KeyFrameDatabase (CLATCHVocabulary &voc):
     mpVoc(&voc)
 {
     mvInvertedFile.resize(voc.size());
 }
 
-void KeyFrameDatabase::set_vocab(ORBVocabulary *voc)
+void KeyFrameDatabase::set_vocab(CLATCHVocabulary *voc)
 {
     mpVoc = voc;
 }

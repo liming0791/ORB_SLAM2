@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(DBoW2)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -O3 -march=native")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -O3")
 
 set(HDRS_DBOW2
   DBoW2/BowVector.h
@@ -21,9 +21,11 @@ set(SRCS_DBOW2
 
 set(HDRS_DUTILS
   DUtils/Random.h
+  DUtils/LUT.h
   DUtils/Timestamp.h)
 set(SRCS_DUTILS
   DUtils/Random.cpp
+  DUtils/LUT.cpp
   DUtils/Timestamp.cpp)
 
 find_package(OpenCV REQUIRED)

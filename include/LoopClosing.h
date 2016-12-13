@@ -25,6 +25,7 @@
 #include "LocalMapping.h"
 #include "Map.h"
 #include "ORBVocabulary.h"
+#include "CLATCHVocabulary.h"
 #include "Tracking.h"
 
 #include "KeyFrameDatabase.h"
@@ -51,7 +52,7 @@ public:
 
 public:
 
-    LoopClosing(Map* pMap, KeyFrameDatabase* pDB, ORBVocabulary* pVoc,const bool bFixScale);
+    LoopClosing(Map* pMap, KeyFrameDatabase* pDB, CLATCHVocabulary* pVoc,const bool bFixScale);
 
     void SetTracker(Tracking* pTracker);
 
@@ -108,7 +109,7 @@ protected:
     Tracking* mpTracker;
 
     KeyFrameDatabase* mpKeyFrameDB;
-    ORBVocabulary* mpORBVocabulary;
+    CLATCHVocabulary* mpORBVocabulary;
 
     LocalMapping *mpLocalMapper;
 
