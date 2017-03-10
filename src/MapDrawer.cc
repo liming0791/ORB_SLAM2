@@ -268,13 +268,13 @@ void MapDrawer::SetCurrentCameraPose(const Eigen::Vector3d &T, const Eigen::Quat
 
 void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M)
 {
-    if(!Q.empty()&&!T.empty())
+    if(!mCameraPose.empty())
     {
         cv::Mat Rwc;
         cv::Mat twc;
 
         {
-            unique_lock<mutex> lock(mMutexQ);
+            unique_lock<mutex> lock(mMutexCamera);
             //Rwc = ORB_SLAM2::Converter::toMatrix(Q);
             Rwc =  mCameraPose.rowRange(0,3).colRange(0,3).t();
             twc = -Rwc*mCameraPose.rowRange(0,3).col(3);

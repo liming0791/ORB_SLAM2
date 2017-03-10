@@ -149,6 +149,7 @@ protected:
     bool TrackWithMotionModel();
     bool TrackWithHomography();
     void FindHomography(Frame& cF, Frame& lF, cv::Mat& resH);
+    void FindHomography(Frame& cF, KeyFrame& lF, cv::Mat& resH);
     void SaveHomographyImage(Frame& cF, Frame& lF, cv::Mat& H, int FrameIdx);
     bool TrackWithOriginal();
 
@@ -175,8 +176,10 @@ protected:
     LoopClosing* mpLoopClosing;
 
     //ORB
-    ORBextractorBase* mpORBextractorLeft, *mpORBextractorRight;
-    ORBextractorBase* mpIniORBextractor;
+    //ORBextractorBase* mpORBextractorLeft, *mpORBextractorRight;
+    //ORBextractorBase* mpIniORBextractor;
+    Patchextractor* mpPatchextractorLeft, *mpPatchextractorRight;
+    Patchextractor *mpIniPatchextractor;
 
     //BoW
     ORBVocabulary* mpORBVocabulary;

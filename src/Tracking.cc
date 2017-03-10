@@ -24,7 +24,7 @@
 #include<opencv2/core/core.hpp>
 #include<opencv2/features2d/features2d.hpp>
 
-#include"ORBmatcher.h"
+#include"Patchmatcher.h"
 #include"FrameDrawer.h"
 #include"Converter.h"
 #include"Map.h"
@@ -146,24 +146,24 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
 
     if (useGPU==1) {
         printf("use GPU ORB extractor!\n");
-        mpORBextractorLeft = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
+        //mpORBextractorLeft = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
     } else if (useGPU==2) {
         printf("use GPU FAST extractor!\n");
-        mpORBextractorLeft = new ORBextractorGPU_OnlyFAST(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+        //mpORBextractorLeft = new ORBextractorGPU_OnlyFAST(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
     } else {
-        mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+        mpPatchextractorLeft = new Patchextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
     }
 
 
     if(sensor==System::STEREO){
         if (useGPU==1) {
             printf("use GPU ORB extractor!\n");
-            mpORBextractorRight = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
+            //mpORBextractorRight = new ORBextractorGPU(nFeatures, fScaleFactor, nLevels);
         } else if (useGPU==2) {
             printf("use GPU FAST extractor!\n");
-            mpORBextractorRight = new ORBextractorGPU_OnlyFAST(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+            //mpORBextractorRight = new ORBextractorGPU_OnlyFAST(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
         } else {
-            mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,
+            mpPatchextractorRight = new Patchextractor(nFeatures,fScaleFactor,nLevels,
                     fIniThFAST,fMinThFAST);
         }
 	}
@@ -171,12 +171,12 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     if(sensor==System::MONOCULAR){
         if (useGPU==1) {
             printf("use GPU ORB extractor!\n");
-            mpIniORBextractor = new ORBextractorGPU(2*nFeatures, fScaleFactor, nLevels);
+            //mpIniORBextractor = new ORBextractorGPU(2*nFeatures, fScaleFactor, nLevels);
         } else if (useGPU==2) {
             printf("use GPU FAST extractor!\n");
-            mpIniORBextractor = new ORBextractorGPU_OnlyFAST(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+            //mpIniORBextractor = new ORBextractorGPU_OnlyFAST(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
         } else {
-            mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,
+            mpIniPatchextractor = new Patchextractor(2*nFeatures,fScaleFactor,nLevels,
                     fIniThFAST,fMinThFAST);
         }
 	}
@@ -286,7 +286,7 @@ cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRe
     }
 
 	auto beginTime = chrono::high_resolution_clock::now();
-    mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+    mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpPatchextractorLeft,mpPatchextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 	auto endTime = chrono::high_resolution_clock::now();
 	long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
 	printf("Construct a Frame time: %f ms\n", dua/1000.f);
@@ -300,6 +300,7 @@ cv::Mat Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat &imRe
 void Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp,
         cv::Mat *_Tcw, int *status)
 {
+    printf("\n");
     mImGray = imRGB;
     cv::Mat imDepth = imD;
 
@@ -326,7 +327,7 @@ void Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const doub
     gettimeofday(&start, NULL);
 // time
     
-	mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+	mCurrentFrame = Frame(mImGray,imDepth,timestamp,mpPatchextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 	
 // time end
     gettimeofday(&end, NULL);
@@ -381,9 +382,9 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
     }
 
     if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET)
-        mCurrentFrame = Frame(mImGray,timestamp,mpIniORBextractor,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+        mCurrentFrame = Frame(mImGray,timestamp,mpIniPatchextractor,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
     else
-        mCurrentFrame = Frame(mImGray,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+        mCurrentFrame = Frame(mImGray,timestamp,mpPatchextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
 
     Track();
 
@@ -419,7 +420,6 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 
 void Tracking::Track()
 {
-	//cout << "Tracking..." << endl;
     if(mState==NO_IMAGES_YET)
     {
         mState = NOT_INITIALIZED;
@@ -452,10 +452,6 @@ void Tracking::Track()
         // System is initialized. Track Frame.
         bool bOK;
 
-// time it 
-//      auto beginTime = chrono::high_resolution_clock::now();
-// time it
-		
         // Initial camera pose estimation using motion model or relocalization (if tracking is lost)
         if(!mbOnlyTracking)
         {
@@ -488,7 +484,8 @@ void Tracking::Track()
 					//}
 
                     // Track with homography
-                    bOK = TrackWithHomography();
+                    //bOK = TrackWithHomography();
+                    bOK = TrackWithMotionModel();
                     if (!bOK) {
                         printf("LOST: TrackWithHomography Failed!\n");
                         //bOK = TrackWithMotionModel();
@@ -501,27 +498,12 @@ void Tracking::Track()
 						//}
                     }
                     
-                    // Track with original
-                    //bOK = TrackWithOriginal();
-                    //if (!bOK) {
-					//	printf("LOST: TrackWithOriginal Failed!\n");
-                    //    bOK = TrackReferenceKeyFrame();
-					//	if (!bOK) {
-					//		printf("LOST: TrackReferenceKeyFrame Failed!\n");
-					//	}
-					//}
-
-                    // Track with keyframe
-                    //bOK = TrackReferenceKeyFrame();
-                    //if (!bOK) {
-                    //    printf("LOST: TrackReferenceKeyFrame Failed!\n");
-                    //}
                 }
             }
             else
             {
 				printf("Do Relocatization, with mapping...\n");
-                bOK = Relocalization();
+                //bOK = Relocalization();
             }
         }
         else
@@ -597,18 +579,8 @@ void Tracking::Track()
             }
         }
 
-// time it
-//      auto endTime = chrono::high_resolution_clock::now();
-//      long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//      printf("----Initial camera pose time: %f ms\n", dua/1000.f);
-// time it
-		
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
-// time it 
-//      beginTime = chrono::high_resolution_clock::now();
-// time it
-		
         // If we have an initial estimation of the camera pose and matching. Track the local map.
         if(!mbOnlyTracking)
         {
@@ -632,12 +604,6 @@ void Tracking::Track()
 			}
         }
 		
-// time it
-//      endTime = chrono::high_resolution_clock::now();
-//      dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//      printf("----Track the local map time: %f ms\n", dua/1000.f);
-// time it
-		
 		printf("--------LocalMap keypoints num: %f\n", mvpLocalMapPoints.size()+0.01);
 
         if(bOK)
@@ -648,16 +614,9 @@ void Tracking::Track()
 		}
 
         // Update drawer
-		//cout << "Update FrameDrawer" << endl;
         mpFrameDrawer->Update(this);
-		//cout << "Update FrameDrawer done" << endl;
 
-// time it 
-//      beginTime = chrono::high_resolution_clock::now();
-// time it
-		
         // If tracking were good, check if we insert a keyframe
-		//cout << "Check keyframe" << endl;
         if(bOK)
         {
             // Update motion model
@@ -708,13 +667,6 @@ void Tracking::Track()
                     mCurrentFrame.mvpMapPoints[i]=static_cast<MapPoint*>(NULL);
             }
         }
-		//cout << "Check keyframe done" << endl;
-		
-// time it
-//      endTime = chrono::high_resolution_clock::now();
-//      dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//      printf("----Check keyframe time: %f ms\n", dua/1000.f);
-// time it
 		
         // Reset if the camera get lost soon after initialization
         if(mState==LOST)
@@ -733,10 +685,6 @@ void Tracking::Track()
         mLastFrame = Frame(mCurrentFrame);
     }
 	
-// time it 
-//      auto beginTime = chrono::high_resolution_clock::now();
-// time it
-		
     // Store frame pose information to retrieve the complete camera trajectory afterwards.
     if(!mCurrentFrame.mTcw.empty() && mCurrentFrame.mpReferenceKF)
     {
@@ -754,14 +702,6 @@ void Tracking::Track()
         mlFrameTimes.push_back(mlFrameTimes.back());
         mlbLost.push_back(mState==LOST);
     }
-	
-// time it
-//      auto endTime = chrono::high_resolution_clock::now();
-//      long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//      printf("----Store frame pose time: %f ms\n", dua/1000.f);
-// time it	
-		
-	//cout << "Tracking Done" << endl;
 }
 #if 0
 cv::Mat Tracking::getTransformData()
@@ -874,7 +814,7 @@ void Tracking::MonocularInitialization()
         }
 
         // Find correspondences
-        ORBmatcher matcher(0.9,true);
+        Patchmatcher matcher(0.9,true);
         int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,100);
 
         // Check if there are enough correspondences
@@ -1042,19 +982,33 @@ void Tracking::CheckReplacedInLastFrame()
 bool Tracking::TrackReferenceKeyFrame()
 {
     // Compute Bag of Words vector
-    mCurrentFrame.ComputeBoW();
+    //mCurrentFrame.ComputeBoW();
 
     // We perform first an ORB matching with the reference keyframe
     // If enough matches are found we setup a PnP solver
-    ORBmatcher matcher(0.7,true);
-    vector<MapPoint*> vpMapPointMatches;
+    Patchmatcher matcher(0.7,true);
+    //vector<MapPoint*> vpMapPointMatches;
 
-    int nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
+    // === Find 2D Homography
+    cv::Mat H(3, 3, CV_32FC1);
+    FindHomography(mCurrentFrame, *mpReferenceKF, H);
+
+    // Project points seen in previous frame
+    int th;
+    if(mSensor!=System::STEREO)
+        th=15;
+    else
+        th=5;
+
+    // ===== search by homography projection
+    int nmatches = matcher.SearchByHomography(mCurrentFrame,*mpReferenceKF,H,th,mSensor==System::MONOCULAR);
+
+    //int nmatches = matcher.SearchByBF(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
 
     if(nmatches<15)
         return false;
 
-    mCurrentFrame.mvpMapPoints = vpMapPointMatches;
+    //mCurrentFrame.mvpMapPoints = vpMapPointMatches;
     mCurrentFrame.SetPose(mLastFrame.mTcw);     // Set the predict estimation
 
     Optimizer::PoseOptimization(&mCurrentFrame);
@@ -1151,7 +1105,7 @@ void Tracking::UpdateLastFrame()
 
 bool Tracking::TrackWithOriginal()
 {
-    ORBmatcher matcher(0.9,true);
+    Patchmatcher matcher(0.9,true);
 
     // Update last frame pose according to its reference keyframe
     // Create "visual odometry" points
@@ -1210,6 +1164,45 @@ bool Tracking::TrackWithOriginal()
     }
 
     return nmatchesMap>=10;
+
+}
+
+void Tracking::FindHomography(Frame& cF, KeyFrame& lF, cv::Mat& resH)
+{
+    //static int sFrameIdx = 0;
+    //sFrameIdx++;
+
+    int width = lF.Thumbnail.cols;
+    int height = lF.Thumbnail.rows;
+
+    //printf("Thumbnail size: %d %d\n", width, height);
+
+    float scale = 640.f / width;
+
+    CVD::ImageRef size(width,height);
+    CVD::Image<unsigned char> sRefImg(size), sTarImg(size);
+
+    memcpy(sRefImg.begin(), lF.Thumbnail.data, width*height*sizeof(unsigned char));
+    memcpy(sTarImg.begin(), cF.Thumbnail.data, width*height*sizeof(unsigned char));
+
+    //char name[50] = "";
+    //sprintf(name, "sRefImg%d.png", sFrameIdx);
+    //CVD::img_save(sRefImg, name);
+
+    CVD::Homography<8> homography;
+    CVD::StaticAppearance appearance;
+    CVD::Image< TooN::Vector<2> > greImg = CVD::Internal::gradient<TooN::Vector<2>, unsigned char>(sRefImg);
+    CVD::Internal::esm_opt(homography, appearance, sRefImg, greImg, sTarImg, 40, 1e-8, 1.0);
+    TooN::Matrix<3> H = homography.get_matrix();
+
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            resH.at<float>(i,j) = H(i,j);
+
+    resH.at<float>(0,2) = H(0,2) * scale;
+    resH.at<float>(1,2) = H(1,2) * scale;
+    resH.at<float>(2,0) = H(2,0) / scale;
+    resH.at<float>(2,1) = H(2,1) / scale;
 
 }
 
@@ -1288,7 +1281,7 @@ bool Tracking::TrackWithHomography()
     static int FrameIdx = -1;
     FrameIdx++;
 
-    ORBmatcher matcher(0.9,true);
+    Patchmatcher matcher(0.9,true);
 
     // Update last frame pose according to its reference keyframe
     // Create "visual odometry" points
@@ -1365,7 +1358,7 @@ bool Tracking::TrackWithHomography()
 
 bool Tracking::TrackWithMotionModel()
 {
-    ORBmatcher matcher(0.9,true);
+    Patchmatcher matcher(0.9,true);
 
     // Update last frame pose according to its reference keyframe
     // Create "visual odometry" points
@@ -1431,48 +1424,14 @@ bool Tracking::TrackLocalMap()
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
 
-// time it 
-//  auto beginTime = chrono::high_resolution_clock::now();
-// time it
-		
     UpdateLocalMap();
 
-// time it
-//      auto endTime = chrono::high_resolution_clock::now();
-//      long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//		printf("------UpdateLocalMap time: %f ms\n", dua/1000.f);
-// time it
-
-// time it 
-//		beginTime = chrono::high_resolution_clock::now();
-// time it
-		
     SearchLocalPoints();
-
-// time it
-//		endTime = chrono::high_resolution_clock::now();
-//		dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//		printf("------SearchLocalPoints time: %f ms\n", dua/1000.f);
-// time it
-		
-// time it 
-//		beginTime = chrono::high_resolution_clock::now();
-// time it
-		
+	
     // Optimize Pose
     Optimizer::PoseOptimization(&mCurrentFrame);
     mnMatchesInliers = 0;
 	
-// time it
-//      endTime = chrono::high_resolution_clock::now();
-//      dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//      printf("------PoseOptimization time: %f ms\n", dua/1000.f);
-// time it
-		
-// time it 
-//      beginTime = chrono::high_resolution_clock::now();
-// time it
-		
     // Update MapPoints Statistics
     for(int i=0; i<mCurrentFrame.N; i++)
     {
@@ -1495,12 +1454,8 @@ bool Tracking::TrackLocalMap()
         }
     }
 
-// time it
-//      endTime = chrono::high_resolution_clock::now();
-//      dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//      printf("------Update MapPoints Statistics time: %f ms\n", dua/1000.f);
-// time it
-		
+    printf("Local Map mnMatchesInliers : %d \n", mnMatchesInliers);
+
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
@@ -1695,10 +1650,6 @@ void Tracking::CreateNewKeyFrame()
 void Tracking::SearchLocalPoints()
 {
 
-// time it 
-//  auto beginTime = chrono::high_resolution_clock::now();
-// time it
-
     // Do not search map points already matched
     for(vector<MapPoint*>::iterator vit=mCurrentFrame.mvpMapPoints.begin(), vend=mCurrentFrame.mvpMapPoints.end(); vit!=vend; vit++)
     {
@@ -1718,18 +1669,8 @@ void Tracking::SearchLocalPoints()
         }
     }
 	
-// time it
-//  auto endTime = chrono::high_resolution_clock::now();
-//  long long dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//  printf("--------set already matched time: %f ms\n", dua/1000.f);
-// time it
-
     int nToMatch=0;
 
-// time it 
-//  beginTime = chrono::high_resolution_clock::now();
-// time it
-	
     // Project points in frame and check its visibility
     for(vector<MapPoint*>::iterator vit=mvpLocalMapPoints.begin(), vend=mvpLocalMapPoints.end(); vit!=vend; vit++)
     {
@@ -1745,36 +1686,21 @@ void Tracking::SearchLocalPoints()
             nToMatch++;
         }
     }
-	
-// time it
-//  endTime = chrono::high_resolution_clock::now();
-//  dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//  printf("--------check visibility time: %f ms\n", dua/1000.f);
-// time it
 
-// time it 
-//  beginTime = chrono::high_resolution_clock::now();
-// time it
+    printf("Search Local Map, nToMatch : %d \n", nToMatch);
 	
     if(nToMatch>0)
     {
-        ORBmatcher matcher(0.8);
+        Patchmatcher matcher(0.8);
         int th = 1;
         if(mSensor==System::RGBD)
             th=3;
         // If the camera has been relocalised recently, perform a coarser search
         if(mCurrentFrame.mnId<mnLastRelocFrameId+2)
             th=5;
-        matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
+        int matchNum = matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
+        printf("Search Local Map, matchNum : %d \n", matchNum);
     }
-	
-// time it
-//  endTime = chrono::high_resolution_clock::now();
-//  dua = (long long)chrono::duration_cast<chrono::microseconds>(endTime - beginTime).count();
-//  printf("--------SearchByProjection time: %f ms\n", dua/1000.f);
-// time it
-	
-	
 	
 }
 
@@ -1944,7 +1870,7 @@ bool Tracking::Relocalization()
 
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
-    ORBmatcher matcher(0.75,true);
+    Patchmatcher matcher(0.75,true);
 
     vector<PnPsolver*> vpPnPsolvers;
     vpPnPsolvers.resize(nKFs);
@@ -1987,7 +1913,7 @@ bool Tracking::Relocalization()
     // Alternatively perform some iterations of P4P RANSAC
     // Until we found a camera pose supported by enough inliers
     bool bMatch = false;
-    ORBmatcher matcher2(0.9,true);
+    Patchmatcher matcher2(0.9,true);
 
     while(nCandidates>0 && !bMatch)
     {
@@ -2115,9 +2041,9 @@ void Tracking::Reset()
     cout << " done" << endl;
 
     // Reset Loop Closing
-    cout << "Reseting Loop Closing...";
-    mpLoopClosing->RequestReset();
-    cout << " done" << endl;
+    //cout << "Reseting Loop Closing...";
+    //mpLoopClosing->RequestReset();
+    //cout << " done" << endl;
 
     // Clear BoW Database
     cout << "Reseting Database...";

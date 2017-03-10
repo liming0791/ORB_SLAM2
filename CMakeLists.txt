@@ -85,6 +85,8 @@ add_library(${PROJECT_NAME} SHARED
     src/ORBextractorGPU_OnlyFAST.cc
     src/ORBextractor.cc
     src/ORBmatcher.cc
+    src/Patchextractor.cc
+    src/Patchmatcher.cc
     src/FrameDrawer.cc
     src/Converter.cc
     src/MapPoint.cc
@@ -98,14 +100,14 @@ add_library(${PROJECT_NAME} SHARED
     src/Sim3Solver.cc
     src/Initializer.cc
     src/Viewer.cc
+    src/vfc.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
     ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
     ${OpenCV_LIBS}
-    ${EIGEN3_LIBS}
-    ${Pangolin_LIBRARIES}
+    ${EIGEN3_LIBS} ${Pangolin_LIBRARIES}
     ${Boost_LIBRARIES}
     ${CVD_LIBRARY}
 )
@@ -144,3 +146,8 @@ target_link_libraries(mono_kitti ${PROJECT_NAME})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/tools)
 add_executable(bin_vocabulary tools/bin_vocabulary.cc)
 target_link_libraries(bin_vocabulary ${PROJECT_NAME})
+
+# Build tools
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/tools)
+add_executable(voc_demo tools/voc_demo.cpp)
+target_link_libraries(voc_demo ${PROJECT_NAME})

@@ -98,11 +98,11 @@ int main(int argc, char **argv)
         std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
 #endif
 
-        cv::resize(imRGB, imRGB_h, cv::Size(320, 240));
-        cv::resize(imD, imD_h, cv::Size(320, 240));
+        //cv::resize(imRGB, imRGB_h, cv::Size(320, 240));
+        //cv::resize(imD, imD_h, cv::Size(320, 240));
 
         // Pass the image to the SLAM system
-        SLAM.TrackRGBD(imRGB_h,imD_h,tframe);
+        SLAM.TrackRGBD(imRGB,imD,tframe);
 
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
